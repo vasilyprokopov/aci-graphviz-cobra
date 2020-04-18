@@ -26,8 +26,8 @@ def bd_node(tn, bd):
 
 
 # Initiating a session to APIC
-apicUrl = "https://10.61.6.121:20109"
-loginSession = LoginSession(apicUrl, "automation", "automation123", secure=False)
+apicUrl = "https://"
+loginSession = LoginSession(apicUrl, "user", "pass", secure=False)
 moDir = MoDirectory(loginSession)
 moDir.login()
 
