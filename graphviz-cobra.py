@@ -17,6 +17,9 @@ import argparse
 parser = argparse.ArgumentParser(description='Script to plot diagrams from running ACI fabric')
 parser.add_argument('-t', '--tenant', help='Tenant to generate a diagram for. Default: all Tenants present in the ACI fabric', nargs='?', metavar='example_tn')
 parser.add_argument('-o', '--output', help='Output file name. Default: out.png', default="out.png")
+parser.add_argument('-u', '--user', help='APIC Username', nargs='?', metavar='user', required=True)
+parser.add_argument('-p', '--password', help='APIC Password', nargs='?', metavar='Cisco123', required=True)
+parser.add_argument('-a', '--apic', help='APIC URL', nargs='?', metavar='https://192.168.1.1', required=True)
 args = parser.parse_args()
 
 
@@ -51,8 +54,10 @@ def outside_epg_node(tn, l3out, exEpg):
 
 
 # Initiating a session to APIC
-apicUrl = "https://10.61.6.121:20109"
-loginSession = LoginSession(apicUrl, "automation", "automation123", secure=False)
+apicUrl = args.apic
+apicUser = args.user
+apicPass = args.password
+loginSession = LoginSession(apicUrl, apicUser, apicPass, secure=False)
 moDir = MoDirectory(loginSession)
 moDir.login()
 
@@ -273,3 +278,4 @@ graph.draw(args.output, prog='dot')
 # 1. Comprehensive prints on every step e.g. Plot BD-X
 # 2. If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
 # 3. Fix L3Out to VRF connection in Tenant Common
+# 4. Add support for VZany
