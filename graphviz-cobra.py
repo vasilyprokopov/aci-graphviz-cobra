@@ -20,6 +20,7 @@ parser.add_argument('-o', '--output', help='Output file name. Default: out.png',
 parser.add_argument('-u', '--user', help='APIC Username', nargs='?', metavar='user', required=True)
 parser.add_argument('-p', '--password', help='APIC Password', nargs='?', metavar='Cisco123', required=True)
 parser.add_argument('-a', '--apic', help='APIC URL', nargs='?', metavar='https://192.168.1.1', required=True)
+parser.add_argument('-vv', '--verbose', help='', action='store_true')
 args = parser.parse_args()
 
 
@@ -273,6 +274,8 @@ moDir.logout()
 print ("\nGenerating diagram")
 graph.draw(args.output, prog='dot')
 
+if args.verbose:
+    print (graph.string())
 
 ## TODO:
 # 1. Comprehensive prints on every step e.g. Plot BD-X
