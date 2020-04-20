@@ -87,8 +87,8 @@ for tenant in fvTenant:
 
 
     # Plot L3Outs
-    # Plot separate subgraph for all L3Outs that belong to the Tenant - Option 1
-    # l3outCluster=tnCluster.add_subgraph(name=tn_node(tenant.name)+"/l3extOut", label="L3Outs")
+        # Plot separate subgraph for all L3Outs that belong to the Tenant - Option 1
+        # l3outCluster=tnCluster.add_subgraph(name=tn_node(tenant.name)+"/l3extOut", label="L3Outs")
 
 
     # Query all L3Outs that belong to the Tenant
@@ -120,9 +120,17 @@ for tenant in fvTenant:
         l3extInstP = moDir.query(exEpgQuery)
 
         for exEpg in l3extInstP:
+            # Construct a label that includes Subnets
+            label = "Outside EPG\n"+exEpg.name
+            subnetQuery = ClassQuery(str(exEpg.dn)+"/l3extSubnet")
+            fvSubnet = moDir.query(subnetQuery)
+            for subnet in fvSubnet:
+                label = label+"\n"+subnet.ip
+
 
             # Plot exEPG
-            l3outCluster.add_node(outside_epg_node(tenant.name, l3out.name, exEpg.name), label="Outside EPG\n"+exEpg.name)
+            l3outCluster.add_node(outside_epg_node(tenant.name, l3out.name, exEpg.name), label=label)
+
 
             # Plot exEPG to L3Out connection
             l3outCluster.add_edge(l3out_node(tenant.name, l3out.name), outside_epg_node(tenant.name, l3out.name, exEpg.name))
@@ -164,7 +172,16 @@ for tenant in fvTenant:
     fvBD = moDir.query(bdQuery)
 
     for bd in fvBD:
-        tnCluster.add_node(bd_node(tenant.name, bd.name), label="Bridge Domain\n"+bd.name, shape='box') # Plot a BD
+        # Construct a label that includes Subnets
+        label = "Bridge Domain\n"+bd.name
+        subnetQuery = ClassQuery(str(bd.dn)+"/fvSubnet")
+        fvSubnet = moDir.query(subnetQuery)
+        for subnet in fvSubnet:
+            label = label+"\n"+subnet.ip
+
+
+        # Plot a BD
+        tnCluster.add_node(bd_node(tenant.name, bd.name), label=label, shape='box')
 
 
         # Query what VRF this BD attaches to
