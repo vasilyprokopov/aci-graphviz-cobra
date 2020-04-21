@@ -154,12 +154,21 @@ for tenant in fvTenant:
             fvRsProv = moDir.query(pcQuery)
 
             for pc in fvRsProv:
+                if pc.state == "formed": # Check if contract is indeed present
 
-                # Plot Provided Contract
-                l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
+                    # Plot Provided Contract
+                    l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
-                # Plot Provided Contract to exEPG connection
-                l3outCluster.add_edge(outside_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    # Plot Provided Contract to exEPG connection
+                    l3outCluster.add_edge(outside_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+
+                elif pc.state == "missing-target": # Check if contract is missing
+
+                    # Plot Missing Contract
+                    l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+
+                    # Plot Missing Contract to exEPG connection
+                    l3outCluster.add_edge(outside_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
 
             # Plot Contracts consumed by this exEPG, if any
@@ -168,14 +177,21 @@ for tenant in fvTenant:
             fvRsCons = moDir.query(ccQuery)
 
             for cc in fvRsCons:
+                if cc.state == "formed": # Check if contract is indeed present
 
-                # Plot Consumed Contract
-                #apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
-                l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
+                    # Plot Consumed Contract
+                    l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
-                # Plot Consumed Contract to exEPG connection
-                #apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name))
-                l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+                    # Plot Consumed Contract to exEPG connection
+                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+
+                elif cc.state == "missing-target": # Check if contract is missing
+
+                    # Plot Missing Contract
+                    l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+
+                    # Plot Missing Contract to exEPG connection
+                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
 
 
     # Plot BDs
@@ -217,7 +233,8 @@ for tenant in fvTenant:
 
         # Plot BD to L3Out connection, if any
         for l3out in attachedL3Out:
-            tnCluster.add_edge(bd_node(tenant.name, bd.name), l3out_node(tenant.name,l3out.tnL3extOutName), style='dotted') # The name of attached L3Out is in attribute "tnL3extOutName"
+            if l3out.tnL3extOutName: # Verify if there is indeed a L3Out attached
+                tnCluster.add_edge(bd_node(tenant.name, bd.name), l3out_node(tenant.name,l3out.tnL3extOutName), style='dotted') # The name of attached L3Out is in attribute "tnL3extOutName"
 
 
     # Plot APs
@@ -252,13 +269,21 @@ for tenant in fvTenant:
             fvRsProv = moDir.query(pcQuery)
 
             for pc in fvRsProv:
+                if pc.state == "formed": # Check if contract is indeed present
 
-                # Plot Provided Contract
-                apCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
+                    # Plot Provided Contract
+                    apCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
-                # Plot Provided Contract to EPG connection
-                apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    # Plot Provided Contract to EPG connection
+                    apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
+                elif pc.state == "missing-target": # Check if contract is missing
+
+                    # Plot Missing Contract
+                    apCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+
+                    # Plot Missing Contract to EPG connection
+                    apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
             # Plot Contracts consumed by this EPG, if any
             # Query what Contracts this EPG consumes
@@ -266,12 +291,21 @@ for tenant in fvTenant:
             fvRsCons = moDir.query(ccQuery)
 
             for cc in fvRsCons:
+                if cc.state == "formed": # Check if contract is indeed present
 
-                # Plot Consumed Contract
-                apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
+                    # Plot Consumed Contract
+                    apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
-                # Plot Consumed Contract to EPG connection
-                apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
+                    # Plot Consumed Contract to EPG connection
+                    apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
+
+                elif cc.state == "missing-target": # Check if contract is missing
+
+                    # Plot Missing Contract
+                    apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+
+                    # Plot Missing Contract to EPG connection
+                    apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
 
 
 moDir.logout()
@@ -283,6 +317,10 @@ if args.verbose:
     print (graph.string())
 
 ## TODO:
+# 0. Add support for inter-tenant contracts (contract interface)
 # 1. Comprehensive prints on every step e.g. Plot BD-X
 # 2. If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
 # 3. Add support for VZany
+# 4. Add contact Subjects and Filters
+# 5. Add L2 and L3 BD depending on L3 Unicast Forwarding
+# 6. If some object is missing but relation is present, flag it (like with missing contracts)
