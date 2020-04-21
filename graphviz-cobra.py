@@ -13,6 +13,11 @@ import sys
 import argparse
 
 
+# Disable InsecureRequestWarning
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+
 # Parsing command line arguments
 parser = argparse.ArgumentParser(description='Script to plot diagrams from running ACI fabric')
 parser.add_argument('-t', '--tenant', help='Tenant to generate a diagram for. Default: all Tenants present in the ACI fabric', nargs='?', metavar='example_tn')
@@ -117,7 +122,8 @@ for tenant in fvTenant:
 
         # Plot L3Out to VRF connection, if any
         for ctx in attachedCtx:
-            tnCluster.add_edge(ctx_node(tenant.name, ctx.tnFvCtxName), l3out_node(tenant.name,l3out.name), style='dotted') # The name of attached VRF is in attribute "tnFvCtxName"
+            if ctx.tnFvCtxName: # Verify if there is indeed VRF attached
+                tnCluster.add_edge(ctx_node(tenant.name, ctx.tnFvCtxName), l3out_node(tenant.name,l3out.name), style='dotted') # The name of attached VRF is in attribute "tnFvCtxName"
 
 
         # Plot External EPGs (exEPG)
@@ -195,17 +201,16 @@ for tenant in fvTenant:
         attachedCtx = moDir.query(ctxQuery)
 
 
-        # Plot BD to VRF connection
-        # Checking if indeed there is a VRF attached (or maybe several VRFs in the future)
+        # Plot BD to VRF connection, if any
         for ctx in attachedCtx:
-            if ctx.tnFvCtxName: # The name of attached VRF is in attribute "tnFvCtxName"
+            if ctx.tnFvCtxName: # Verify if there is indeed VRF attached (or maybe several VRFs in the future)
                 tnCluster.add_edge(ctx_node(tenant.name, ctx.tnFvCtxName), bd_node(tenant.name, bd.name))
-            else: # If VRF is not attached, then create an invisible node to move BD node to the right
+            else: # If VRF is not attached, then create an invisible node to move BD to the right
                 tnCluster.add_node("_ctx-dummy-"+bd_node(tenant.name, bd.name), style="invis", label='Dummy Context', shape='circle')
                 tnCluster.add_edge("_ctx-dummy-"+bd_node(tenant.name, bd.name), bd_node(tenant.name, bd.name), style="invis")
 
 
-        # Query what L3Outs this BD attaches to, if any
+        # Query what L3Outs this BD attaches to
         l3OutQuery = ClassQuery(str(bd.dn)+"/fvRsBDToOut") # If there is a L3Out attached, BD will have a child MO "fvRsBDToOut"
         attachedL3Out = moDir.query(l3OutQuery)
 
@@ -280,5 +285,4 @@ if args.verbose:
 ## TODO:
 # 1. Comprehensive prints on every step e.g. Plot BD-X
 # 2. If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
-# 3. Fix L3Out to VRF connection in Tenant Common
-# 4. Add support for VZany
+# 3. Add support for VZany
