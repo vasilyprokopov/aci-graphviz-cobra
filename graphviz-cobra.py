@@ -58,6 +58,9 @@ def l3out_node(tn, l3out):
 def outside_epg_node(tn, l3out, exEpg):
     return l3out_node(tn, l3out)+"/outside-epg-"+exEpg
 
+def ctrctIf_node(ctrctIf):
+    return "global-ctrctIf-"+ctrctIf # In the global graph space, because needs to be shared between Tenants
+
 
 # Initiating a session to APIC
 apicUrl = args.apic
@@ -154,7 +157,7 @@ for tenant in fvTenant:
             fvRsProv = moDir.query(pcQuery)
 
             for pc in fvRsProv:
-                if pc.state == "formed": # Check if contract is indeed present
+                if pc.state == "formed": # Check if contract exists
 
                     # Plot Provided Contract
                     l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
@@ -177,7 +180,7 @@ for tenant in fvTenant:
             fvRsCons = moDir.query(ccQuery)
 
             for cc in fvRsCons:
-                if cc.state == "formed": # Check if contract is indeed present
+                if cc.state == "formed": # Check if contract exists
 
                     # Plot Consumed Contract
                     l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
@@ -192,6 +195,29 @@ for tenant in fvTenant:
 
                     # Plot Missing Contract to exEPG connection
                     l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+
+
+            # Plot Contract Interfaces consumed by this exEPG, if any
+            # Query what Contract Interfaces this exEPG consumes
+            ccQuery = ClassQuery(str(exEpg.dn)+"/fvRsConsIf") # Consumed Contract Interface will have a child MO "fvRsConsIf"
+            fvRsConsIf = moDir.query(ccQuery)
+
+            for cc in fvRsConsIf:
+                if cc.state == "formed": # Check if Contract Interface exists
+
+                    # Plot Consumed Contract Interface in the gloabal graph space
+                    tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
+
+                    # Plot Consumed Contract Interface to exEPG connection
+                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
+
+                elif cc.state == "missing-target": # Check if contract is missing
+
+                    # Plot Missing Contract Interface in the gloabal graph space
+                    tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
+
+                    # Plot Missing Contract Interface to exEPG connection
+                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
 
 
     # Plot BDs
@@ -285,13 +311,14 @@ for tenant in fvTenant:
                     # Plot Missing Contract to EPG connection
                     apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
+
             # Plot Contracts consumed by this EPG, if any
             # Query what Contracts this EPG consumes
             ccQuery = ClassQuery(str(epg.dn)+"/fvRsCons") # Consumed Contract will have a child MO "fvRsCons"
             fvRsCons = moDir.query(ccQuery)
 
             for cc in fvRsCons:
-                if cc.state == "formed": # Check if contract is indeed present
+                if cc.state == "formed": # Check if contract exists
 
                     # Plot Consumed Contract
                     apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
@@ -308,6 +335,54 @@ for tenant in fvTenant:
                     apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
 
 
+            # Plot Contract Interfaces consumed by this EPG, if any
+            # Query what Contract Interfaces this EPG consumes
+            ccQuery = ClassQuery(str(epg.dn)+"/fvRsConsIf") # Consumed Contract Interface will have a child MO "fvRsConsIf"
+            fvRsConsIf = moDir.query(ccQuery)
+
+            for cc in fvRsConsIf:
+                if cc.state == "formed": # Check if Contract Interface exists
+
+                    # Plot Consumed Contract Interface in the gloabal graph space
+                    tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
+
+                    # Plot Consumed Contract Interface to EPG connection
+                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
+
+                elif cc.state == "missing-target": # Check if contract is missing
+
+                    # Plot Missing Contract Interface in the gloabal graph space
+                    tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
+
+                    # Plot Missing Contract Interface to EPG connection
+                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
+
+
+    # Plot Contract Interfaces Provided by this Tenant
+    # Query all Contracts that belong to this Tenant
+    ctrctQuery = ClassQuery(str(tenant.dn)+"/vzBrCP") # Creating a query for Contracts, that takes "uni/tn-graphviz/vzBrCP" as a Class input
+    vzBrCP = moDir.query(ctrctQuery)
+
+    # Check if a Contract is exported to other Tenants by quering all Conract Interfaces that belong to this Contract, if any
+    for ctrct in vzBrCP:
+        ctrctIfQuery = ClassQuery(str(ctrct.dn)+"/vzRtIf")
+        vzRtIf = moDir.query(ctrctIfQuery)
+
+        for ctrctIf in vzRtIf: # Check if Contract Interface is indeed present
+            if ctrctIf.tDn: #
+                i = ctrctIf.tDn.rfind("/cif-")+5 # In tDn we need to find the index where "cif-" ends
+                ctrctIfName = ctrctIf.tDn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
+
+                # Plot Contract
+                tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name, shape='box', style='filled', color='lightgray')
+
+                # Plot Contract Interface in the gloabal graph space
+                tnCluster.add_node(ctrctIf_node(ctrctIfName), label="Contract Interface\n"+ctrctIfName, shape='box', style='filled', color='lightgray')
+
+                # Plot Contract to Contract Interface connection
+                tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
+
+
 moDir.logout()
 
 print ("\nGenerating diagram")
@@ -317,10 +392,11 @@ if args.verbose:
     print (graph.string())
 
 ## TODO:
-# 0. Add support for inter-tenant contracts (contract interface)
+# 0. Make -t argument accept 2 or more tenants
 # 1. Comprehensive prints on every step e.g. Plot BD-X
 # 2. If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
 # 3. Add support for VZany
 # 4. Add contact Subjects and Filters
 # 5. Add L2 and L3 BD depending on L3 Unicast Forwarding
 # 6. If some object is missing but relation is present, flag it (like with missing contracts)
+# 7. See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
