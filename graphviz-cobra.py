@@ -3,6 +3,9 @@
 # Copyright: (c) 2020, Vasily Prokopov (@vasilyprokopov)
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
+# How to execute example:
+# sudo python graphviz-cobra.py -u admin -p cisco123 -a https://192.168.1.1 -t graphviz1_tn graphviz2_tn
+
 from cobra.mit.access import MoDirectory
 from cobra.mit.session import LoginSession
 from cobra.mit.request import DnQuery
@@ -20,7 +23,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Parsing command line arguments
 parser = argparse.ArgumentParser(description='Script to plot diagrams from running ACI fabric')
-parser.add_argument('-t', '--tenant', help='Tenant to generate a diagram for. Default: all Tenants present in the ACI fabric', nargs='?', metavar='example_tn')
+parser.add_argument('-t', '--tenant', help='Tenants to generate diagrams for. Use space to separate. Default: all Tenants', nargs='*', metavar='example_tn')
 parser.add_argument('-o', '--output', help='Output file name. Default: out.png', default="out.png")
 parser.add_argument('-u', '--user', help='APIC Username', nargs='?', metavar='user', required=True)
 parser.add_argument('-p', '--password', help='APIC Password', nargs='?', metavar='Cisco123', required=True)
@@ -62,31 +65,9 @@ def ctrctIf_node(ctrctIf):
     return "global-ctrctIf-"+ctrctIf # In the global graph space, because needs to be shared between Tenants
 
 
-# Initiating a session to APIC
-apicUrl = args.apic
-apicUser = args.user
-apicPass = args.password
-loginSession = LoginSession(apicUrl, apicUser, apicPass, secure=False)
-moDir = MoDirectory(loginSession)
-moDir.login()
-
-
-# Verify if user provided a Tenant name in command line
-if args.tenant:
-
-    # Look up a single Tenant specified as a command line argument "-t"
-    fvTenant = moDir.lookupByClass("fvTenant", propFilter='and(eq(fvTenant.name, "%s"))'%args.tenant)
-else:
-
-    # Look up all Tenant names
-    fvTenant = moDir.lookupByClass("fvTenant")
-
-
-# Processing a Tenant
-for tenant in fvTenant:
+# Defining Plot Tenant function
+def plot_tenant():
     print("Processing Tenant "+tenant.name)
-
-
     # Plot a Tenant
     tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label="Tenant\n"+tenant.name, color="blue")
 
@@ -381,8 +362,31 @@ for tenant in fvTenant:
 
                 # Plot Contract to Contract Interface connection
                 tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
+# End defining Plot Tenant
 
 
+# Initiating a session to APIC
+apicUrl = args.apic
+apicUser = args.user
+apicPass = args.password
+loginSession = LoginSession(apicUrl, apicUser, apicPass, secure=False)
+moDir = MoDirectory(loginSession)
+moDir.login()
+
+
+# Look up all Tenant names
+fvTenant = moDir.lookupByClass("fvTenant")
+
+
+# Processing each Tenant
+for tenant in fvTenant:
+    if not args.tenant: #
+        plot_tenant()
+    elif args.tenant and tenant.name in args.tenant:
+        plot_tenant()
+
+
+# Closing a session to APIC
 moDir.logout()
 
 print ("\nGenerating diagram")
@@ -392,7 +396,6 @@ if args.verbose:
     print (graph.string())
 
 ## TODO:
-# 0. Make -t argument accept 2 or more tenants
 # 1. Comprehensive prints on every step e.g. Plot BD-X
 # 2. If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
 # 3. Add support for VZany
