@@ -259,7 +259,13 @@ def plot_tenant():
         fvAEPg = moDir.query(epgQuery)
 
         for epg in fvAEPg:
-            apCluster.add_node(epg_node(tenant.name, ap.name, epg.name), label="EPG\n"+epg.name) # Plot an EPG
+
+            # Construct a label that includes Preferred Group for VRF information
+            label = "EPG\n"+epg.name
+            if epg.prefGrMemb == "include":
+                label = label + "\n Preferred Group Member"
+
+            apCluster.add_node(epg_node(tenant.name, ap.name, epg.name), label=label) # Plot an EPG
 
 
             # Plot EPG to BD connection
@@ -362,7 +368,7 @@ def plot_tenant():
 
                 # Plot Contract to Contract Interface connection
                 tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
-# End defining Plot Tenant
+# End of Plot Tenant function
 
 
 # Initiating a session to APIC
@@ -380,9 +386,9 @@ fvTenant = moDir.lookupByClass("fvTenant")
 
 # Processing each Tenant
 for tenant in fvTenant:
-    if not args.tenant: #
+    if not args.tenant: # If user didn't provide -tenant command line argument
         plot_tenant()
-    elif args.tenant and tenant.name in args.tenant:
+    elif args.tenant and tenant.name in args.tenant: # If user provided -tenant command line argument, and this tenant exists in ACI
         plot_tenant()
 
 
@@ -396,10 +402,13 @@ if args.verbose:
     print (graph.string())
 
 ## TODO:
-# 1. Comprehensive prints on every step e.g. Plot BD-X
-# 2. If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
-# 3. Add support for VZany
-# 4. Add contact Subjects and Filters
-# 5. Add L2 and L3 BD depending on L3 Unicast Forwarding
-# 6. If some object is missing but relation is present, flag it (like with missing contracts)
-# 7. See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
+# Readme
+# Comprehensive prints on every step e.g. Plot BD-X
+# If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
+# Add support for VZany
+# Add contact Subjects and Filters
+# Add L2 and L3 BD depending on L3 Unicast Forwarding
+# If some object is missing but relation is present, flag it (like with missing contracts)
+# See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
+# Check if BD is indeed connected to L3Out (L3Out exists), TN-PROD in BRU
+# If number of objects is more than 200 suggest splitting into Tenants.
