@@ -78,7 +78,9 @@ def plot_tenant():
     ctrctQuery = ClassQuery(str(tenant.dn)+"/vzBrCP") # Creating a query for Contracts, that takes "uni/tn-graphviz/vzBrCP" as a Class input
     vzBrCP = moDir.query(ctrctQuery) # Executing a query that was created
     for ctrct in vzBrCP:
-        tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name, shape='box', style='filled', color='lightgray')
+
+        # Plot a contract
+        tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='lightgray')
 
 
         # Check if a Contract is exported to other Tenants by quering all Conract Interfaces that belong to this Contract, if any
@@ -94,7 +96,10 @@ def plot_tenant():
                 tnCluster.add_node(ctrctIf_node(ctrctIfName), label="Contract Interface\n"+ctrctIfName, shape='box', style='filled', color='lightgray')
 
                 # Plot Contract to Contract Interface connection
-                tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
+                if ctrct.scope == "global": # Check if Contract scope is Global
+                    tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
+                else:
+                    tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p\nChange scope to global!", style="dotted", color="coral2")
 
 
     # Plot VRFs
@@ -449,9 +454,9 @@ graph.draw(args.output, prog='dot')
 if args.verbose:
     print (graph.string())
 
+
 ## TODO:
 # Add Contract Scopes
-# Add message if contract is unused
 # Readme
 # Comprehensive prints on every step e.g. Plot BD-X
 # If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
@@ -464,5 +469,9 @@ if args.verbose:
 
 
 ## IMPLEMENTED:
-# Think about plotting all contracts at first, rather then plotting then on-demand according to the fact of consumption
+# Think about plotting all contracts at first, rather then plotting on-demand according to the fact of consumption
     # This may streamline the diagram and also reveal unused contracts
+
+
+## NOT IMPLEMENTED:
+# Add message if contract is unused - too complex to query all child objects of a contract (if only way to query several in one go would exist)
