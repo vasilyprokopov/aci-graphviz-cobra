@@ -81,11 +81,76 @@ def plot_tenant():
         tnCluster.add_node(ctx_node(tenant.name, ctx.name), label="VRF\n"+ctx.name, shape='box')
 
 
+        # Plot Contracts (vzAny) provided by this VRF, if any
+        # Query what Contracts this VRF provides
+        pcQuery = ClassQuery(str(ctx.dn)+"/any/vzRsAnyToProv") # Provided Contract will have a child MO "vzRsAnyToProv"
+        vzRsAnyToProv = moDir.query(pcQuery)
+
+        for pc in vzRsAnyToProv:
+            if pc.state == "formed": # Check if contract exists
+
+                # Plot Provided Contract
+                tnCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
+
+                # Plot Provided Contract to VRF connection
+                tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="vzAny p")
+
+            elif pc.state == "missing-target": # Check if contract is missing
+
+                # Plot Missing Contract
+                tnCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+
+                # Plot Missing Contract to VRF connection
+                tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="vzAny p")
+
+
+        # Plot Contracts (vzAny) consumed by this VRF, if any
+        # Query what Contracts this VRF consumes
+        ccQuery = ClassQuery(str(ctx.dn)+"/any/vzRsAnyToCons") # Consumed Contract will have a child MO "/any/vzRsAnyToCons"
+        vzRsAnyToCons = moDir.query(ccQuery)
+
+        for cc in vzRsAnyToCons:
+            if cc.state == "formed": # Check if contract exists
+
+                # Plot Consumed Contract
+                tnCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
+
+                # Plot Consumed Contract to VRF connection
+                tnCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
+
+            elif cc.state == "missing-target": # Check if contract is missing
+
+                # Plot Missing Contract
+                tnCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+
+                # Plot Missing Contract to VRF connection
+                tnCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
+
+
+        # Plot Contract Interfaces (vzAny) consumed by this VRF, if any
+        # Query what Contract Interfaces this VRF consumes
+        ccQuery = ClassQuery(str(ctx.dn)+"/any/vzRsAnyToConsIf") # Consumed Contract Interface will have a child MO "/any/vzRsAnyToConsIf"
+        vzRsAnyToConsIf = moDir.query(ccQuery)
+
+        for cc in vzRsAnyToConsIf:
+            if cc.state == "formed": # Check if Contract Interface exists
+
+                # Plot Consumed Contract Interface in the gloabal graph space
+                tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
+
+                # Plot Consumed Contract Interface to exEPG connection
+                tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), ctx_node(tenant.name, ctx.name), label="inter-tenant vzAny c")
+
+            elif cc.state == "missing-target": # Check if contract is missing
+
+                # Plot Missing Contract Interface in the gloabal graph space
+                tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
+
+                # Plot Missing Contract Interface to exEPG connection
+                tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), ctx_node(tenant.name, ctx.name), label="inter-tenant vzAny c")
+
+
     # Plot L3Outs
-        # Plot separate subgraph for all L3Outs that belong to the Tenant - Option 1
-        # l3outCluster=tnCluster.add_subgraph(name=tn_node(tenant.name)+"/l3extOut", label="L3Outs")
-
-
     # Query all L3Outs that belong to the Tenant
     l3OutQuery = ClassQuery(str(tenant.dn)+"/l3extOut")
     l3extOut = moDir.query(l3OutQuery)
@@ -402,10 +467,12 @@ if args.verbose:
     print (graph.string())
 
 ## TODO:
+# Add Contract Scopes
 # Readme
 # Comprehensive prints on every step e.g. Plot BD-X
 # If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
-# Add support for VZany
+# Think about plotting all contracts at first, rather then plotting then on-demand according to the fact of consumption
+    # This may streamline the diagram and also reveal unused contracts
 # Add contact Subjects and Filters
 # Add L2 and L3 BD depending on L3 Unicast Forwarding
 # If some object is missing but relation is present, flag it (like with missing contracts)
