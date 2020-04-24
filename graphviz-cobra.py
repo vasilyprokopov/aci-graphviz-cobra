@@ -72,10 +72,35 @@ def plot_tenant():
     tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label="Tenant\n"+tenant.name, color="blue")
 
 
+    # Plot Contracts
+    # Standard and Contract Interfaces
+    # Query all Standard Contracts that belong to the Tenant
+    ctrctQuery = ClassQuery(str(tenant.dn)+"/vzBrCP") # Creating a query for Contracts, that takes "uni/tn-graphviz/vzBrCP" as a Class input
+    vzBrCP = moDir.query(ctrctQuery) # Executing a query that was created
+    for ctrct in vzBrCP:
+        tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name, shape='box', style='filled', color='lightgray')
+
+
+        # Check if a Contract is exported to other Tenants by quering all Conract Interfaces that belong to this Contract, if any
+        ctrctIfQuery = ClassQuery(str(ctrct.dn)+"/vzRtIf")
+        vzRtIf = moDir.query(ctrctIfQuery)
+
+        for ctrctIf in vzRtIf: # Check if Contract Interface is indeed present
+            if ctrctIf.tDn: #
+                i = ctrctIf.tDn.rfind("/cif-")+5 # In tDn we need to find the index where "cif-" ends
+                ctrctIfName = ctrctIf.tDn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
+
+                # Plot Contract Interface in the gloabal graph space
+                tnCluster.add_node(ctrctIf_node(ctrctIfName), label="Contract Interface\n"+ctrctIfName, shape='box', style='filled', color='lightgray')
+
+                # Plot Contract to Contract Interface connection
+                tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
+
+
     # Plot VRFs
     # Query all VRFs that belong to the Tenant
     vrfQuery = ClassQuery(str(tenant.dn)+"/fvCtx") # Creating a query for VRFs, that takes "uni/tn-graphviz/fvCtx" as a Class input
-    fvCtx = moDir.query(vrfQuery) # Executing a query that was created
+    fvCtx = moDir.query(vrfQuery)
 
     for ctx in fvCtx:
         tnCluster.add_node(ctx_node(tenant.name, ctx.name), label="VRF\n"+ctx.name, shape='box')
@@ -88,9 +113,6 @@ def plot_tenant():
 
         for pc in vzRsAnyToProv:
             if pc.state == "formed": # Check if contract exists
-
-                # Plot Provided Contract
-                tnCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
                 # Plot Provided Contract to VRF connection
                 tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="vzAny p")
@@ -111,9 +133,6 @@ def plot_tenant():
 
         for cc in vzRsAnyToCons:
             if cc.state == "formed": # Check if contract exists
-
-                # Plot Consumed Contract
-                tnCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
                 # Plot Consumed Contract to VRF connection
                 tnCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
@@ -205,9 +224,6 @@ def plot_tenant():
             for pc in fvRsProv:
                 if pc.state == "formed": # Check if contract exists
 
-                    # Plot Provided Contract
-                    l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
-
                     # Plot Provided Contract to exEPG connection
                     l3outCluster.add_edge(outside_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
@@ -227,9 +243,6 @@ def plot_tenant():
 
             for cc in fvRsCons:
                 if cc.state == "formed": # Check if contract exists
-
-                    # Plot Consumed Contract
-                    l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
                     # Plot Consumed Contract to exEPG connection
                     l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
@@ -349,9 +362,6 @@ def plot_tenant():
             for pc in fvRsProv:
                 if pc.state == "formed": # Check if contract is indeed present
 
-                    # Plot Provided Contract
-                    apCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
-
                     # Plot Provided Contract to EPG connection
                     apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
@@ -371,9 +381,6 @@ def plot_tenant():
 
             for cc in fvRsCons:
                 if cc.state == "formed": # Check if contract exists
-
-                    # Plot Consumed Contract
-                    apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='lightgray')
 
                     # Plot Consumed Contract to EPG connection
                     apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
@@ -409,30 +416,6 @@ def plot_tenant():
                     # Plot Missing Contract Interface to EPG connection
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
 
-
-    # Plot Contract Interfaces Provided by this Tenant
-    # Query all Contracts that belong to this Tenant
-    ctrctQuery = ClassQuery(str(tenant.dn)+"/vzBrCP") # Creating a query for Contracts, that takes "uni/tn-graphviz/vzBrCP" as a Class input
-    vzBrCP = moDir.query(ctrctQuery)
-
-    # Check if a Contract is exported to other Tenants by quering all Conract Interfaces that belong to this Contract, if any
-    for ctrct in vzBrCP:
-        ctrctIfQuery = ClassQuery(str(ctrct.dn)+"/vzRtIf")
-        vzRtIf = moDir.query(ctrctIfQuery)
-
-        for ctrctIf in vzRtIf: # Check if Contract Interface is indeed present
-            if ctrctIf.tDn: #
-                i = ctrctIf.tDn.rfind("/cif-")+5 # In tDn we need to find the index where "cif-" ends
-                ctrctIfName = ctrctIf.tDn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
-
-                # Plot Contract
-                tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name, shape='box', style='filled', color='lightgray')
-
-                # Plot Contract Interface in the gloabal graph space
-                tnCluster.add_node(ctrctIf_node(ctrctIfName), label="Contract Interface\n"+ctrctIfName, shape='box', style='filled', color='lightgray')
-
-                # Plot Contract to Contract Interface connection
-                tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
 # End of Plot Tenant function
 
 
@@ -468,14 +451,18 @@ if args.verbose:
 
 ## TODO:
 # Add Contract Scopes
+# Add message if contract is unused
 # Readme
 # Comprehensive prints on every step e.g. Plot BD-X
 # If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
-# Think about plotting all contracts at first, rather then plotting then on-demand according to the fact of consumption
-    # This may streamline the diagram and also reveal unused contracts
 # Add contact Subjects and Filters
 # Add L2 and L3 BD depending on L3 Unicast Forwarding
 # If some object is missing but relation is present, flag it (like with missing contracts)
 # See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
 # Check if BD is indeed connected to L3Out (L3Out exists), TN-PROD in BRU
 # If number of objects is more than 200 suggest splitting into Tenants.
+
+
+## IMPLEMENTED:
+# Think about plotting all contracts at first, rather then plotting then on-demand according to the fact of consumption
+    # This may streamline the diagram and also reveal unused contracts
