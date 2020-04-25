@@ -55,15 +55,30 @@ def plot_tenant(tenant, graph, moDir):
     vzBrCP = moDir.query(ctrctQuery) # Executing a query that was created
     for ctrct in vzBrCP:
 
-        # Plot a contract
 
+        # Check if contract is unused i.e. doesn't have any child MOs indicating it is associated
+        label = ""
+        Query1 = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtProv"))
+        if not Query1:
+            Query2 = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtCons"))
+            if not Query2:
+                Query3 = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtAnyToProv"))
+                if not Query3:
+                    Query4 = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtAnyToCons"))
+                    if not Query4:
+                        Query5 = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtIf"))
+                        if not Query5:
+                            label = "Unused "
+
+
+        # Plot a contract
         # Check if currrently proccessed tenant is "common"
         if tenant.name == "common":
             # If tenant "common", then mark the plotted object
-            tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Common Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='darkseagreen')
+            tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label=label+"Common Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='darkseagreen')
         else:
             # If tenant is not "common", then don't mark the plotted object
-            tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='lightgray')
+            tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label=label+"Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='lightgray')
 
 
         # Check if a Contract is exported to other Tenants by quering all Conract Interfaces that belong to this Contract, if any
