@@ -51,6 +51,13 @@ moDir.login()
 fvTenant = moDir.lookupByClass("fvTenant")
 
 
+# Moving tenant "common" to the end of the list
+# It needs to be processed last because otherwise some of the Common objects may get rewrited by other tenants and hence appear simplified
+for tenant in fvTenant:
+    if tenant.name == "common":
+        fvTenant.append(fvTenant.pop(fvTenant.index(tenant)))
+
+
 # Process each Tenant
 for tenant in fvTenant:
     if not args.tenant: # If user didn't provide -tenant command line argument
@@ -84,15 +91,17 @@ if args.verbose:
 
 
 ## TODO:
+# Add domain-centric Fabric mode, older code relate to Tenant mode
 # Readme
 # Comprehensive prints on every step e.g. Plot BD-X
 # If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
-# Add L2 and L3 BD depending on L3 Unicast Forwarding
 # If some object is missing but relation is present, flag it (like with missing contracts)
 # See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
-# Check if BD is indeed connected to L3Out (L3Out exists), TN-PROD in BRU
+# Check what happens if BD is attached to default L3Out in tenant Common (TN-PROD in BRU)
 # If number of objects is more than 200 suggest splitting into Tenants
 # Taboo Contarcts
+# Certificate-based authentication
+# Add tenant Common support for vzAny
 
 
 ## NOT IMPLEMENTED:
@@ -100,6 +109,8 @@ if args.verbose:
 # Contact Subjects and Filters: may appear heavy visually if there are many sbj and flt per Contract
 
 ## IMPLEMENTED:
-# Think about plotting all contracts at first, rather then plotting on-demand according to the fact of consumption
-    # This may streamline the diagram and also reveal unused contracts
+# Think about plotting all contracts at first, rather then plotting on-demand according to the fact of consumption. This may streamline the diagram and also reveal unused contracts
 # Add Contract Scopes
+# Add L2 and L3 BD depending on L3 Unicast Forwarding
+# Add tenant Common support for BD, EPG, Contract, L3Out. Common objects are 'darkseagreen' color. If tenant Common itself is excluded from the diagram, its objects that other tenants refer to are plotted, but in a simplified form (e.g. no scope for Contracts)
+# Tenant Common should be processed last, otherwise simplified objects do not get detalised

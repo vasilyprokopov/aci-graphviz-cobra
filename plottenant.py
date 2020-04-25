@@ -43,11 +43,12 @@ def ctrctIf_node(ctrctIf):
 # It will accept Tenant name, graph that this tenant should be part of, and inherit session to the APIC - moDir
 def plot_tenant(tenant, graph, moDir):
     print("Processing Tenant "+tenant.name)
+
     # Plot a Tenant
     tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label="Tenant\n"+tenant.name, color="blue")
 
 
-    # Plot Contracts
+    # Process Contracts
     # Standard and Contract Interfaces
     # Query all Standard Contracts that belong to the Tenant
     ctrctQuery = ClassQuery(str(tenant.dn)+"/vzBrCP") # Creating a query for Contracts, that takes "uni/tn-graphviz/vzBrCP" as a Class input
@@ -55,7 +56,14 @@ def plot_tenant(tenant, graph, moDir):
     for ctrct in vzBrCP:
 
         # Plot a contract
-        tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='lightgray')
+
+        # Check if currrently proccessed tenant is "common"
+        if tenant.name == "common":
+            # If tenant "common", then mark the plotted object
+            tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Common Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='darkseagreen')
+        else:
+            # If tenant is not "common", then don't mark the plotted object
+            tnCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='lightgray')
 
 
         # Check if a Contract is exported to other Tenants by quering all Conract Interfaces that belong to this Contract, if any
@@ -70,20 +78,28 @@ def plot_tenant(tenant, graph, moDir):
                 # Plot Contract Interface in the gloabal graph space
                 tnCluster.add_node(ctrctIf_node(ctrctIfName), label="Contract Interface\n"+ctrctIfName, shape='box', style='filled', color='lightgray')
 
-                # Plot Contract to Contract Interface connection
+                # Plot Contract to Contract Interface association
                 if ctrct.scope == "global": # Check if Contract scope is Global
                     tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
                 else:
                     tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p\nChange scope to global!", style="dotted", color="coral2")
 
 
-    # Plot VRFs
+    # Process VRFs
     # Query all VRFs that belong to the Tenant
     vrfQuery = ClassQuery(str(tenant.dn)+"/fvCtx") # Creating a query for VRFs, that takes "uni/tn-graphviz/fvCtx" as a Class input
     fvCtx = moDir.query(vrfQuery)
 
     for ctx in fvCtx:
-        tnCluster.add_node(ctx_node(tenant.name, ctx.name), label="VRF\n"+ctx.name, shape='circle')
+
+        # Plot a VRF
+        # Check if currrently proccessed tenant is "common"
+        if tenant.name == "common":
+            # If tenant "common", then mark the plotted object
+            tnCluster.add_node(ctx_node(tenant.name, ctx.name), label="Common VRF\n"+ctx.name, shape='circle', style='filled', color='darkseagreen')
+        else:
+            # If tenant is not "common", then don't mark the plotted object
+            tnCluster.add_node(ctx_node(tenant.name, ctx.name), label="VRF\n"+ctx.name, shape='circle')
 
 
         # Plot Contracts (vzAny) provided by this VRF, if any
@@ -92,18 +108,30 @@ def plot_tenant(tenant, graph, moDir):
         vzRsAnyToProv = moDir.query(pcQuery)
 
         for pc in vzRsAnyToProv:
+
+            # Check if Provided Contract (vzAny) comes from tenant Common
+            if "/tn-common/" in pc.tDn and tenant.name != "common":
+                ctrctTenant = "common" # If Provided Contract comes from tenant Common, replace tenant.name to "common"
+
+                # Plot Contract from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                graph.add_node(ctrct_node(ctrctTenant,pc.tnVzBrCPName), label="Common Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='darkseagreen')
+
+            else:
+                ctrctTenant = tenant.name # If Provided Contract does not come from tenant Common, leave tenant.name unchanged
+
+
             if pc.state == "formed": # Check if contract exists
 
-                # Plot Provided Contract to VRF connection
-                tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="vzAny p")
+                # Plot Provided Contract to VRF association
+                tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="vzAny p")
 
             elif pc.state == "missing-target": # Check if contract is missing
 
                 # Plot Missing Contract
-                tnCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+                tnCluster.add_node(ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
-                # Plot Missing Contract to VRF connection
-                tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="vzAny p")
+                # Plot Missing Contract to VRF association
+                tnCluster.add_edge(ctx_node(tenant.name, ctx.name), ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="vzAny p")
 
 
         # Plot Contracts (vzAny) consumed by this VRF, if any
@@ -112,18 +140,30 @@ def plot_tenant(tenant, graph, moDir):
         vzRsAnyToCons = moDir.query(ccQuery)
 
         for cc in vzRsAnyToCons:
+
+            # Check if Consumed Contract (vzAny) comes from tenant Common
+            if "/tn-common/" in cc.tDn and tenant.name != "common":
+                ctrctTenant = "common" # If Consumed Contract comes from tenant Common, replace tenant.name to "common"
+
+                # Plot Contract from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                graph.add_node(ctrct_node(ctrctTenant,cc.tnVzBrCPName), label="Common Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='darkseagreen')
+
+            else:
+                ctrctTenant = tenant.name # If Consumed Contract does not come from tenant Common, leave tenant.name unchanged
+
+
             if cc.state == "formed": # Check if contract exists
 
-                # Plot Consumed Contract to VRF connection
-                tnCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
+                # Plot Consumed Contract to VRF association
+                tnCluster.add_edge(ctrct_node(ctrctTenant, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
 
             elif cc.state == "missing-target": # Check if contract is missing
 
                 # Plot Missing Contract
-                tnCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+                tnCluster.add_node(ctrct_node(ctrctTenant, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
-                # Plot Missing Contract to VRF connection
-                tnCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
+                # Plot Missing Contract to VRF association
+                tnCluster.add_edge(ctrct_node(ctrctTenant, cc.tnVzBrCPName), ctx_node(tenant.name, ctx.name), label="vzAny c")
 
 
         # Plot Contract Interfaces (vzAny) consumed by this VRF, if any
@@ -137,7 +177,7 @@ def plot_tenant(tenant, graph, moDir):
                 # Plot Consumed Contract Interface in the gloabal graph space
                 tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
 
-                # Plot Consumed Contract Interface to exEPG connection
+                # Plot Consumed Contract Interface to exEPG association
                 tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), ctx_node(tenant.name, ctx.name), label="inter-tenant vzAny c")
 
             elif cc.state == "missing-target": # Check if contract is missing
@@ -145,22 +185,29 @@ def plot_tenant(tenant, graph, moDir):
                 # Plot Missing Contract Interface in the gloabal graph space
                 tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
 
-                # Plot Missing Contract Interface to exEPG connection
+                # Plot Missing Contract Interface to exEPG association
                 tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), ctx_node(tenant.name, ctx.name), label="inter-tenant vzAny c")
 
 
-    # Plot L3Outs
+    # Process L3Outs
     # Query all L3Outs that belong to the Tenant
     l3OutQuery = ClassQuery(str(tenant.dn)+"/l3extOut")
     l3extOut = moDir.query(l3OutQuery)
 
     for l3out in l3extOut:
 
-        # Plot separate subgraph per each L3Out that belongs to the Tenant - Option 2
+        # Create separate subgraph per each L3Out that belongs to the Tenant
         l3outCluster=tnCluster.add_subgraph(name=l3out_node(tenant.name, l3out.name), label="L3Out")
 
-        # Plot L3Out within the previously created subgraph
-        l3outCluster.add_node(l3out_node(tenant.name, l3out.name), label = "L3Out\n"+l3out.name, shape='box')
+        # Plot L3Out within its subgraph
+
+        # Check if currrently proccessed tenant is "common"
+        if tenant.name == "common":
+            # If tenant "common", then mark the plotted object
+            l3outCluster.add_node(l3out_node(tenant.name, l3out.name), label = "Common L3Out\n"+l3out.name, shape='box', style='filled', color='darkseagreen')
+        else:
+            # If tenant is not "common", then don't mark the plotted object
+            l3outCluster.add_node(l3out_node(tenant.name, l3out.name), label = "L3Out\n"+l3out.name, shape='box')
 
 
         # Query what VRF this L3Out attaches to
@@ -168,7 +215,7 @@ def plot_tenant(tenant, graph, moDir):
         attachedCtx = moDir.query(ctxQuery)
 
 
-        # Plot L3Out to VRF connection, if any
+        # Plot L3Out to VRF association, if any
         for ctx in attachedCtx:
             if ctx.tnFvCtxName: # Verify if there is indeed VRF attached
                 tnCluster.add_edge(ctx_node(tenant.name, ctx.tnFvCtxName), l3out_node(tenant.name,l3out.name), style='dotted') # The name of attached VRF is in attribute "tnFvCtxName"
@@ -192,7 +239,7 @@ def plot_tenant(tenant, graph, moDir):
             l3outCluster.add_node(external_epg_node(tenant.name, l3out.name, exEpg.name), label=label)
 
 
-            # Plot exEPG to L3Out connection
+            # Plot exEPG to L3Out association
             l3outCluster.add_edge(l3out_node(tenant.name, l3out.name), external_epg_node(tenant.name, l3out.name, exEpg.name))
 
 
@@ -202,18 +249,30 @@ def plot_tenant(tenant, graph, moDir):
             fvRsProv = moDir.query(pcQuery)
 
             for pc in fvRsProv:
+
+                # Check if Provided Contract comes from tenant Common
+                if "/tn-common/" in pc.tDn and tenant.name != "common":
+                    ctrctTenant = "common" # If Provided Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot Contract from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(ctrct_node(ctrctTenant,pc.tnVzBrCPName), label="Common Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='darkseagreen')
+
+                else:
+                    ctrctTenant = tenant.name # If Provided Contract does not come from tenant Common, leave tenant.name unchanged
+
+
                 if pc.state == "formed": # Check if contract exists
 
-                    # Plot Provided Contract to exEPG connection
-                    l3outCluster.add_edge(external_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    # Plot Provided Contract to exEPG association
+                    l3outCluster.add_edge(external_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="p")
 
                 elif pc.state == "missing-target": # Check if contract is missing
 
                     # Plot Missing Contract
-                    l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+                    l3outCluster.add_node(ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
-                    # Plot Missing Contract to exEPG connection
-                    l3outCluster.add_edge(external_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    # Plot Missing Contract to exEPG association
+                    l3outCluster.add_edge(external_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="p")
 
 
             # Plot Contracts consumed by this exEPG, if any
@@ -222,18 +281,30 @@ def plot_tenant(tenant, graph, moDir):
             fvRsCons = moDir.query(ccQuery)
 
             for cc in fvRsCons:
+
+                # Check if Consumed Contract comes from tenant Common
+                if "/tn-common/" in cc.tDn and tenant.name != "common":
+                    ctrctTenant = "common" # If Consumed Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot Contract from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(ctrct_node(ctrctTenant,cc.tnVzBrCPName), label="Common Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='darkseagreen')
+
+                else:
+                    ctrctTenant = tenant.name # If Consumed Contract does not come from tenant Common, leave tenant.name unchanged
+
+
                 if cc.state == "formed": # Check if contract exists
 
-                    # Plot Consumed Contract to exEPG connection
-                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+                    # Plot Consumed Contract to exEPG association
+                    l3outCluster.add_edge(ctrct_node(ctrctTenant, cc.tnVzBrCPName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
 
                 elif cc.state == "missing-target": # Check if contract is missing
 
                     # Plot Missing Contract
-                    l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+                    l3outCluster.add_node(ctrct_node(ctrctTenant, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
-                    # Plot Missing Contract to exEPG connection
-                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+                    # Plot Missing Contract to exEPG association
+                    l3outCluster.add_edge(ctrct_node(ctrctTenant, cc.tnVzBrCPName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
 
 
             # Plot Contract Interfaces consumed by this exEPG, if any
@@ -247,7 +318,7 @@ def plot_tenant(tenant, graph, moDir):
                     # Plot Consumed Contract Interface in the gloabal graph space
                     tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
 
-                    # Plot Consumed Contract Interface to exEPG connection
+                    # Plot Consumed Contract Interface to exEPG association
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
 
                 elif cc.state == "missing-target": # Check if contract is missing
@@ -255,11 +326,11 @@ def plot_tenant(tenant, graph, moDir):
                     # Plot Missing Contract Interface in the gloabal graph space
                     tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
 
-                    # Plot Missing Contract Interface to exEPG connection
+                    # Plot Missing Contract Interface to exEPG association
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
 
 
-    # Plot BDs
+    # Process BDs
     # Query all BDs that belong to the Tenant
     bdQuery = ClassQuery(str(tenant.dn)+"/fvBD")
     fvBD = moDir.query(bdQuery)
@@ -277,7 +348,13 @@ def plot_tenant(tenant, graph, moDir):
 
 
         # Plot a BD
-        tnCluster.add_node(bd_node(tenant.name, bd.name), label=label, shape='box')
+        # Check if currrently proccessed tenant is "common"
+        if tenant.name == "common":
+            # If tenant "common", then mark the plotted object
+            tnCluster.add_node(bd_node(tenant.name, bd.name), label="Common "+label, shape='box', style='filled', color='darkseagreen')
+        else:
+            # If tenant is not "common", then don't mark the plotted object
+            tnCluster.add_node(bd_node(tenant.name, bd.name), label=label, shape='box')
 
 
         # Query what VRF this BD attaches to
@@ -285,10 +362,22 @@ def plot_tenant(tenant, graph, moDir):
         attachedCtx = moDir.query(ctxQuery)
 
 
-        # Plot BD to VRF connection, if any
+        # Plot BD to VRF association, if any
         for ctx in attachedCtx:
             if ctx.tnFvCtxName: # Verify if there is indeed VRF attached (or maybe several VRFs in the future)
-                tnCluster.add_edge(ctx_node(tenant.name, ctx.tnFvCtxName), bd_node(tenant.name, bd.name))
+
+                # Check if VRF comes from tenant Common
+                if "/tn-common/" in ctx.tDn and tenant.name != "common":
+                    vrfTenant = "common" # If Consumed Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot VRF from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(ctx_node(vrfTenant, ctx.tnFvCtxName), label="Common VRF\n"+ctx.tnFvCtxName, shape='circle', style='filled', color='darkseagreen')
+                else:
+                    vrfTenant = tenant.name # If Consumed Contract does not come from tenant Common, leave tenant.name unchanged
+
+                # Plot BD to VRF association
+                tnCluster.add_edge(ctx_node(vrfTenant, ctx.tnFvCtxName), bd_node(tenant.name, bd.name))
+
             else: # If VRF is not attached, then create an invisible node to move BD to the right
                 tnCluster.add_node("_ctx-dummy-"+bd_node(tenant.name, bd.name), style="invis", label='Dummy Context', shape='circle')
                 tnCluster.add_edge("_ctx-dummy-"+bd_node(tenant.name, bd.name), bd_node(tenant.name, bd.name), style="invis")
@@ -299,13 +388,24 @@ def plot_tenant(tenant, graph, moDir):
         attachedL3Out = moDir.query(l3OutQuery)
 
 
-        # Plot BD to L3Out connection, if any
+        # Plot BD to L3Out association, if any
         for l3out in attachedL3Out:
             if l3out.tnL3extOutName: # Verify if there is indeed a L3Out attached
-                tnCluster.add_edge(bd_node(tenant.name, bd.name), l3out_node(tenant.name,l3out.tnL3extOutName), style='dotted') # The name of attached L3Out is in attribute "tnL3extOutName"
+
+                # Check if L3Out comes from tenant Common
+                if "/tn-common/" in l3out.tDn and tenant.name != "common":
+                    l3outTenant = "common" # If Consumed Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot L3Out from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(l3out_node(l3outTenant, l3out.tnL3extOutName), label = "Common L3Out\n"+l3out.tnL3extOutName, shape='box', style='filled', color='darkseagreen')
+                else:
+                    l3outTenant = tenant.name # If Consumed Contract does not come from tenant Common, leave tenant.name unchanged
+
+                # Plot BD to L3Out association
+                tnCluster.add_edge(bd_node(tenant.name, bd.name), l3out_node(l3outTenant,l3out.tnL3extOutName), style='dotted') # The name of attached L3Out is in attribute "tnL3extOutName"
 
 
-    # Plot APs
+    # Process Application Profiles (APs)
     # Query all APs that belong to the Tenant
     apQuery = ClassQuery(str(tenant.dn)+"/fvAp")
     fvAp = moDir.query(apQuery)
@@ -329,12 +429,22 @@ def plot_tenant(tenant, graph, moDir):
             apCluster.add_node(epg_node(tenant.name, ap.name, epg.name), label=label) # Plot an EPG
 
 
-            # Plot EPG to BD connection
+            # Plot EPG to BD association
             # Query what BD this EPG attaches to
             bdQuery = ClassQuery(str(epg.dn)+"/fvRsBd") # BD will have a child MO "fvRsBd"
             attachedBd = moDir.query(bdQuery)
             for bd in attachedBd:
-                tnCluster.add_edge(bd_node(tenant.name, bd.tnFvBDName), epg_node(tenant.name, ap.name, epg.name), style='dotted')
+
+                # Check if BD comes from tenant Common
+                if "/tn-common/" in bd.tDn and tenant.name != "common":
+                    bdTenant = "common" # If Consumed Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot VRF from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(bd_node(bdTenant, bd.tnFvBDName), label="Common Bridge Domain\n"+bd.tnFvBDName, shape='box', style='filled', color='darkseagreen')
+                else:
+                    bdTenant = tenant.name # If Consumed Contract does not come from tenant Common, leave tenant.name unchanged
+
+                tnCluster.add_edge(bd_node(bdTenant, bd.tnFvBDName), epg_node(tenant.name, ap.name, epg.name), style='dotted')
 
 
             # Plot Contracts provided by this EPG, if any
@@ -343,18 +453,30 @@ def plot_tenant(tenant, graph, moDir):
             fvRsProv = moDir.query(pcQuery)
 
             for pc in fvRsProv:
+
+                # Check if Provided Contract comes from tenant Common
+                if "/tn-common/" in pc.tDn and tenant.name != "common":
+                    ctrctTenant = "common" # If Provided Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot Contract from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(ctrct_node(ctrctTenant,pc.tnVzBrCPName), label="Common Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='darkseagreen')
+
+                else:
+                    ctrctTenant = tenant.name # If Provided Contract does not come from tenant Common, leave tenant.name unchanged
+
+
                 if pc.state == "formed": # Check if contract is indeed present
 
-                    # Plot Provided Contract to EPG connection
-                    apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    # Plot Provided Contract to EPG association
+                    apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="p")
 
                 elif pc.state == "missing-target": # Check if contract is missing
 
                     # Plot Missing Contract
-                    apCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+                    apCluster.add_node(ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
-                    # Plot Missing Contract to EPG connection
-                    apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    # Plot Missing Contract to EPG association
+                    apCluster.add_edge(epg_node(tenant.name, ap.name, epg.name), ctrct_node(ctrctTenant, pc.tnVzBrCPName), label="p")
 
 
             # Plot Contracts consumed by this EPG, if any
@@ -363,18 +485,28 @@ def plot_tenant(tenant, graph, moDir):
             fvRsCons = moDir.query(ccQuery)
 
             for cc in fvRsCons:
+
+                # Check if Consumed Contract comes from tenant Common
+                if "/tn-common/" in cc.tDn and tenant.name != "common":
+                    ctrctTenant = "common" # If Consumed Contract comes from tenant Common, replace tenant.name to "common"
+
+                    # Plot Contract from tenant Common in the gloabal graph space, in case tenant Common itself is excluded from plotting
+                    graph.add_node(ctrct_node(ctrctTenant,cc.tnVzBrCPName), label="Common Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='darkseagreen')
+
+
                 if cc.state == "formed": # Check if contract exists
 
-                    # Plot Consumed Contract to EPG connection
-                    apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
+                    # Plot Consumed Contract to EPG association
+                    apCluster.add_edge(ctrct_node(ctrctTenant, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
+
 
                 elif cc.state == "missing-target": # Check if contract is missing
 
                     # Plot Missing Contract
-                    apCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
+                    apCluster.add_node(ctrct_node(ctrctTenant, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
-                    # Plot Missing Contract to EPG connection
-                    apCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
+                    # Plot Missing Contract to EPG association
+                    apCluster.add_edge(ctrct_node(ctrctTenant, cc.tnVzBrCPName), epg_node(tenant.name, ap.name, epg.name), label="c")
 
 
             # Plot Contract Interfaces consumed by this EPG, if any
@@ -388,7 +520,7 @@ def plot_tenant(tenant, graph, moDir):
                     # Plot Consumed Contract Interface in the gloabal graph space
                     tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
 
-                    # Plot Consumed Contract Interface to EPG connection
+                    # Plot Consumed Contract Interface to EPG association
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
 
                 elif cc.state == "missing-target": # Check if contract is missing
@@ -396,7 +528,7 @@ def plot_tenant(tenant, graph, moDir):
                     # Plot Missing Contract Interface in the gloabal graph space
                     tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
 
-                    # Plot Missing Contract Interface to EPG connection
+                    # Plot Missing Contract Interface to EPG association
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
 
 # End of Plot Tenant function
