@@ -32,8 +32,8 @@ def ctrct_node(tn, ctrct):
 def l3out_node(tn, l3out):
     return tn_node(tn)+"/l3out-"+l3out
 
-def outside_epg_node(tn, l3out, exEpg):
-    return l3out_node(tn, l3out)+"/outside-epg-"+exEpg
+def external_epg_node(tn, l3out, exEpg):
+    return l3out_node(tn, l3out)+"/external-epg-"+exEpg
 
 def ctrctIf_node(ctrctIf):
     return "global-ctrctIf-"+ctrctIf # In the global graph space, because needs to be shared between Tenants
@@ -181,7 +181,7 @@ def plot_tenant(tenant, graph, moDir):
 
         for exEpg in l3extInstP:
             # Construct a label that includes Subnets
-            label = "Outside EPG\n"+exEpg.name
+            label = "External EPG\n"+exEpg.name
             subnetQuery = ClassQuery(str(exEpg.dn)+"/l3extSubnet")
             fvSubnet = moDir.query(subnetQuery)
             for subnet in fvSubnet:
@@ -189,11 +189,11 @@ def plot_tenant(tenant, graph, moDir):
 
 
             # Plot exEPG
-            l3outCluster.add_node(outside_epg_node(tenant.name, l3out.name, exEpg.name), label=label)
+            l3outCluster.add_node(external_epg_node(tenant.name, l3out.name, exEpg.name), label=label)
 
 
             # Plot exEPG to L3Out connection
-            l3outCluster.add_edge(l3out_node(tenant.name, l3out.name), outside_epg_node(tenant.name, l3out.name, exEpg.name))
+            l3outCluster.add_edge(l3out_node(tenant.name, l3out.name), external_epg_node(tenant.name, l3out.name, exEpg.name))
 
 
             # Plot Contracts provided by this exEPG, if any
@@ -205,7 +205,7 @@ def plot_tenant(tenant, graph, moDir):
                 if pc.state == "formed": # Check if contract exists
 
                     # Plot Provided Contract to exEPG connection
-                    l3outCluster.add_edge(outside_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    l3outCluster.add_edge(external_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
                 elif pc.state == "missing-target": # Check if contract is missing
 
@@ -213,7 +213,7 @@ def plot_tenant(tenant, graph, moDir):
                     l3outCluster.add_node(ctrct_node(tenant.name, pc.tnVzBrCPName), label="Missing Contract\n"+pc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
                     # Plot Missing Contract to exEPG connection
-                    l3outCluster.add_edge(outside_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
+                    l3outCluster.add_edge(external_epg_node(tenant.name, l3out.name, exEpg.name), ctrct_node(tenant.name, pc.tnVzBrCPName), label="p")
 
 
             # Plot Contracts consumed by this exEPG, if any
@@ -225,7 +225,7 @@ def plot_tenant(tenant, graph, moDir):
                 if cc.state == "formed": # Check if contract exists
 
                     # Plot Consumed Contract to exEPG connection
-                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
 
                 elif cc.state == "missing-target": # Check if contract is missing
 
@@ -233,7 +233,7 @@ def plot_tenant(tenant, graph, moDir):
                     l3outCluster.add_node(ctrct_node(tenant.name, cc.tnVzBrCPName), label="Missing Contract\n"+cc.tnVzBrCPName, shape='box', style='filled', color='coral2')
 
                     # Plot Missing Contract to exEPG connection
-                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
+                    l3outCluster.add_edge(ctrct_node(tenant.name, cc.tnVzBrCPName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="c")
 
 
             # Plot Contract Interfaces consumed by this exEPG, if any
@@ -248,7 +248,7 @@ def plot_tenant(tenant, graph, moDir):
                     tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='lightgray')
 
                     # Plot Consumed Contract Interface to exEPG connection
-                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
+                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
 
                 elif cc.state == "missing-target": # Check if contract is missing
 
@@ -256,7 +256,7 @@ def plot_tenant(tenant, graph, moDir):
                     tnCluster.add_node(ctrctIf_node(cc.tnVzCPIfName), label="Missing Contract Interface\n"+cc.tnVzCPIfName, shape='box', style='filled', color='coral2')
 
                     # Plot Missing Contract Interface to exEPG connection
-                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), outside_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
+                    tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), external_epg_node(tenant.name, l3out.name, exEpg.name), label="inter-tenant c")
 
 
     # Plot BDs
@@ -266,7 +266,10 @@ def plot_tenant(tenant, graph, moDir):
 
     for bd in fvBD:
         # Construct a label that includes Subnets
-        label = "Bridge Domain\n"+bd.name
+        if bd.unicastRoute == "yes": # Check if BD is L3 BD
+            label = "Bridge Domain L3\n"+bd.name
+        elif bd.unicastRoute == "no": # Check if BD is L2 BD
+            label = "Bridge Domain L2\n"+bd.name
         subnetQuery = ClassQuery(str(bd.dn)+"/fvSubnet")
         fvSubnet = moDir.query(subnetQuery)
         for subnet in fvSubnet:
