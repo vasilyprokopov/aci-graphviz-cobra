@@ -45,7 +45,7 @@ def plot_tenant(tenant, graph, moDir):
     print("Processing Tenant "+tenant.name)
 
     # Plot a Tenant
-    tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label="Tenant\n"+tenant.name, color="blue")
+    tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label="Tenant\n"+tenant.name, color="steelblue")
 
 
     # Process Contracts
@@ -59,19 +59,16 @@ def plot_tenant(tenant, graph, moDir):
     vzBrCP = moDir.query(ctrctQuery) # Executing a query that was created
     for ctrct in vzBrCP:
 
-        # Check if contract is unused i.e. doesn't have any child MOs indicating it is associated
-        vzRtProv = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtProv"))
-        if not vzRtProv:
-            vzRtCons = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtCons"))
-            if not vzRtCons:
-                vzRtAnyToProv = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtAnyToProv"))
-                if not vzRtAnyToProv:
-                    vzRtAnyToCons = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtAnyToCons"))
-                    if not vzRtAnyToCons:
-                        vzRtIf = moDir.query(ClassQuery(str(ctrct.dn)+"/vzRtIf"))
-                        if not vzRtIf:
-                            unusedCtrctCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Unused Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='coral2')
-                            continue # Continue to the next iteration of the For loop (next Contract, please)
+        # Check if contract is unused i.e. doesn't have any child MOs indicating that the Contract is associated
+        ctrctChildrenQuery = DnQuery(ctrct.dn)
+        ctrctChildrenQuery.queryTarget = "subtree" # Quering only children of Contract MO
+        ctrctChildrenQuery.classFilter = "vzRtProv,vzRtCons,vzRtAnyToProv,vzRtAnyToCons,vzRtIf" # Quering only certain classes among children MOs
+        ctrctChildren = moDir.query(ctrctChildrenQuery)
+
+        # If none of the listed classes present, then Contract is not assosiated and hence unused
+        if not ctrctChildren:
+            unusedCtrctCluster.add_node(ctrct_node(tenant.name, ctrct.name), label="Unused Contract\n"+ctrct.name+"\n Scope: "+ctrct.scope, shape='box', style='filled', color='coral2')
+            continue # Continue to the next iteration of the For loop (next Contract, please)
 
 
         # Plot a contract
@@ -100,7 +97,7 @@ def plot_tenant(tenant, graph, moDir):
                 if ctrct.scope == "global": # Check if Contract scope is Global
                     tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p")
                 else:
-                    tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p\nChange scope to global!", style="dotted", color="coral2")
+                    tnCluster.add_edge(ctrct_node(tenant.name, ctrct.name), ctrctIf_node(ctrctIfName), label="inter-tenant p\nChange scope to global!", style="dotted", color="indianred3")
 
 
     # Process VRFs
