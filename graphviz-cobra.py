@@ -91,7 +91,7 @@ if args.verbose:
 
 
 ## TODO:
-# Group unused contracts and put in a subgraph
+
 # Add domain-centric Fabric mode, older code relate to Tenant mode
 # Readme
 # Comprehensive prints on every step e.g. Plot BD-X
@@ -116,3 +116,4 @@ if args.verbose:
 # Add tenant Common support for BD, EPG, Contract, L3Out. Common objects are 'darkseagreen' color. If tenant Common itself is excluded from the diagram, its objects that other tenants refer to are plotted, but in a simplified form (e.g. no scope for Contracts)
 # Tenant Common should be processed last, otherwise simplified objects do not get detalised
 # Mark unused Contracts as "Unused"
+# Group unused contracts and put in a subgraph
