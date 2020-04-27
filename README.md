@@ -46,7 +46,18 @@ graphviz-cobra.py
               [-c [uni/userext/user-cisco/usercert-cisco_crt]]
 ```
 
-All arguments are optional:
+### Usage examples:
+```
+python graphviz-cobra.py
+```
+```
+python graphviz-cobra.py -a https://192.168.1.1 -u vasily -p cisco123 -t graphviz1_tn graphviz3_tn graphviz2_tn
+```
+```
+python graphviz-cobra.py -a https://192.168.1.1 -c uni/userext/user-vasily/usercert-vasily_crt -k vasily.key -t graphviz1_tn graphviz3_tn graphviz2_tn
+```
+
+### All arguments are optional:
 - APIC URL           
 ```
 -a https://192.168.1.1
@@ -98,6 +109,13 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 ## ToDo
 
 - [ ] Add Taboo Contracts
+- [ ] Add L2Out
+- [ ] Add Service Graph + PBR
+- [ ] Add domain-centric Fabric mode
+- [ ] Comprehensive prints on every step e.g. Plot BD-X
+- [ ] If some object is missing but relation is present, flag it (like with missing contracts)
+- [ ] See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
+- [ ] If number of objects is more than 200 suggest splitting into Tenants
 
 ## Author
 
