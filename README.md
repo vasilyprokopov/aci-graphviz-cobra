@@ -102,6 +102,10 @@ python graphviz-cobra.py -a https://192.168.1.1 -c uni/userext/user-vasily/userc
 
 ![example_diagram_1](example_diagrams/example_diagram_1.png)
 
+Legend:
+- Red - the Object requires attention
+- Green - the object belongs to Tenant Common
+
 ## Supported Objects
 
 Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, External EPG, Standard Contracts, Contract Scopes, Contract Interfaces, vzAny, EPG Preferred Group, Tenant Common.
