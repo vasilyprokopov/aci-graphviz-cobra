@@ -10,6 +10,7 @@ This tool is a Python3 script that:
 - Plots Managed Objects (Objects for short) and their associations to each other
 
 The tool supports Password-based and Certificate-based authentication to the Cisco ACI Fabric.
+Certificate-based authentication takes precedence if both are attempted simultaneously.
 
 ## Use Cases
 
