@@ -37,10 +37,10 @@ Make sure you have these installed before attempting to run the script.
 ```
 graphviz-cobra.py
               [-h]
-              [-u [user]] [-p [Cisco123]]
+              [-u [vasily]] [-p [Cisco123]]
               [-a [https://192.168.1.1]]
               [-t [example_tn1 example_tn2 ...]
-              [-o OUTPUT]
+              [-o out.png]
               [-vv]
               [-k [user.key]]
               [-c [uni/userext/user-cisco/usercert-cisco_crt]]
@@ -49,31 +49,38 @@ graphviz-cobra.py
 All arguments are optional:
 - APIC URL           
 ```
--a [https://192.168.1.1], --apic [https://192.168.1.1]
+-a https://192.168.1.1
+--apic https://192.168.1.1
 ```
 - APIC User for Password-based authentication
 ```
--u [user], --user [user]
+-u vasily
+--user vasily
 ```
 - APIC Password for Password-based authentication
 ```                
--p [Cisco123], --password [Cisco123]
+-p Cisco123
+--password Cisco123
 ```
 - Tenants to generate diagrams for. Use space to separate. Default: all Tenants.
 ```
--t [example_tn1 example_tn2 ...], --tenant [example_tn1 example_tn2 ...]
+-t example_tn1 example_tn2 ...
+--tenant example_tn1 example_tn2 ...
 ```
 - Output file name. Default: out.png.
 ```
--o OUTPUT, --output OUTPUT
+-o out.png
+--output out.png
 ```
 - APIC User private key file for Certificate-based authentication
 ```
--k [user.key], --keyfile [user.key]
+-k user.key
+--keyfile user.key
 ```
 - APIC User certificate DN for Certificate-based authentication
 ```
--c [uni/userext/user-cisco/usercert-cisco_crt], --certdn [uni/userext/user-cisco/usercert-cisco_crt]
+-c uni/userext/user-cisco/usercert-cisco_crt
+--certdn uni/userext/user-cisco/usercert-cisco_crt
 ```
 - Verbose
 ```
