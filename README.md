@@ -7,13 +7,13 @@ Generate diagrams from running Cisco ACI Fabrics.
 This tool is a Python3 script that:
 - Initiates a connection to a running Cisco ACI Fabric
 - Queries each Tenant
-- And plots
+- Plots Managed Objects (Objects for short) and their associations to each other
 
 ## Use Cases
 
-Diagrams produced by this tool will help you to:
+Diagrams produced by this tool will help to:
 - Reveal object relations within the Tenant and between the Tenants
-    * To simplify troubleshooting
+* To simplify troubleshooting
     * And to sparkle ideas how to optimise the configuration
 - Facilitate documentation by generating relevant diagrams that reflect current fabric state
 - Sort out Contract configuration:
