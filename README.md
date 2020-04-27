@@ -9,20 +9,19 @@ This tool is a Python3 script that:
 - Queries each Tenant
 - Plots Managed Objects (Objects for short) and their associations to each other
 
-The tool supports Password-based and Certificate-based authentication to the Cisco ACI Fabric.
-Certificate-based authentication takes precedence if both are attempted simultaneously.
+The tool supports Password-based and Certificate-based authentication to the Cisco ACI Fabric. Certificate-based authentication takes precedence if both are attempted simultaneously.
 
 ## Use Cases
 
 Diagrams produced by this tool will help to:
-- Reveal object relations within the Tenant and between the Tenants
+- Reveal Object relations within the Tenant and between the Tenants
   * To simplify troubleshooting
-  * And to sparkle ideas how to optimise the configuration
-- Augment fabric documentation with diagrams that reflect current fabric state
-- Sort out Contracts configuration:
+  * To sparkle ideas how to optimise the configuration
+- Visually document current configurational state of the Fabric
+- Sort out Contract configuration:
   * Reveal unused Contracts
   * Reveal Contracts with wrongly configured Scope
-  * Visually figure out required Scope for the Contract (e.g. doesn't leave AP)
+  * Visually figure out required Scope for the Contract (e.g. consumed only within the AP)
 - Spot unused Objects (e.g. VRFs, BDs)
 - Reveal missing links between objects (e.g. L3Out to VRF or BD)
 
