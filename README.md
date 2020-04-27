@@ -38,7 +38,7 @@ Make sure you have these installed before attempting to run the script.
 graphviz-cobra.py
               [-h]
               [-u [vasily]] [-p [Cisco123]]
-              [-a [https://192.168.1.1]]
+              [-a [https://169.254.1.1]]
               [-t [example_tn1 example_tn2 ...]
               [-o out.png]
               [-vv]
@@ -51,44 +51,44 @@ graphviz-cobra.py
 python graphviz-cobra.py
 ```
 ```
-python graphviz-cobra.py -a https://192.168.1.1 -u vasily -p cisco123 -t graphviz1_tn graphviz3_tn graphviz2_tn
+python graphviz-cobra.py -a https://169.254.1.1 -u vasily -p cisco123 -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 ```
-python graphviz-cobra.py -a https://192.168.1.1 -c uni/userext/user-vasily/usercert-vasily_crt -k vasily.key -t graphviz1_tn graphviz3_tn graphviz2_tn
+python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-vasily/usercert-vasily_crt -k vasily.key -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 
 ### All arguments are optional:
 - APIC URL           
 ```
--a https://192.168.1.1
---apic https://192.168.1.1
+-a https://169.254.1.1
+--apic https://169.254.1.1
 ```
-- APIC User for Password-based authentication
+- User name for Password-based authentication
 ```
 -u vasily
 --user vasily
 ```
-- APIC Password for Password-based authentication
+- Password for Password-based authentication
 ```                
 -p Cisco123
 --password Cisco123
 ```
-- Tenants to generate diagrams for. Use space to separate. Default: all Tenants.
+- Tenants to be included in the diagram (all Tenants by default)
 ```
 -t example_tn1 example_tn2 ...
 --tenant example_tn1 example_tn2 ...
 ```
-- Output file name. Default: out.png.
+- Output file name (out.png by default)
 ```
 -o out.png
 --output out.png
 ```
-- APIC User private key file for Certificate-based authentication
+- Private key file for Certificate-based authentication
 ```
 -k user.key
 --keyfile user.key
 ```
-- APIC User certificate DN for Certificate-based authentication
+- Certificate DN for Certificate-based authentication
 ```
 -c uni/userext/user-cisco/usercert-cisco_crt
 --certdn uni/userext/user-cisco/usercert-cisco_crt
@@ -103,8 +103,10 @@ python graphviz-cobra.py -a https://192.168.1.1 -c uni/userext/user-vasily/userc
 ![example_diagram_1](example_diagrams/example_diagram_1.png)
 
 Legend:
-- Red - Object requires attention
-- Green - Object belongs to Tenant Common
+- Red = Object requires attention
+- Green = Object belongs to Tenant Common
+- c = Consumed Contract
+- p = Provided Contract
 
 ## Supported Objects
 
@@ -128,5 +130,3 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 ## License
 
 See the [LICENSE](LICENSE) file for details.
-
-## Acronyms

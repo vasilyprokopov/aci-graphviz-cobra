@@ -3,8 +3,8 @@
 # Copyright: (c) 2020, Vasily Prokopov (@vasilyprokopov)
 # GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
-# How to execute example:
-# sudo python graphviz-cobra.py -u admin -p cisco123 -a https://192.168.1.1 -t graphviz1_tn graphviz2_tn
+# Execution example:
+# sudo python graphviz-cobra.py -u admin -p cisco123 -a https://169.254.1.1 -t graphviz1_tn graphviz2_tn
 
 import pygraphviz
 import sys
@@ -28,7 +28,7 @@ parser = argparse.ArgumentParser(description='Script to plot diagrams from runni
 #parser.add_argument('-m', '--mode', help='Tenant/Fabric/EPG', nargs='?', metavar='user', required=True)
 parser.add_argument('-u', '--user', help='APIC Username', nargs='?', metavar='user')
 parser.add_argument('-p', '--password', help='APIC Password', nargs='?', metavar='Cisco123')
-parser.add_argument('-a', '--apic', help='APIC URL', nargs='?', metavar='https://192.168.1.1')
+parser.add_argument('-a', '--apic', help='APIC URL', nargs='?', metavar='https://169.254.1.1')
 parser.add_argument('-t', '--tenant', help='Tenants to generate diagrams for. Use space to separate. Default: all Tenants', nargs='*', metavar='example_tn')
 parser.add_argument('-o', '--output', help='Output file name. Default: out.png', default="out.png")
 parser.add_argument('-vv', '--verbose', help='', action='store_true')
@@ -111,32 +111,6 @@ if args.verbose:
     print (graph.string())
 
 
-## USE CASES
-# Reveal object relations within the Tenant and between the Tenants
-    # Can provide ideas how to optimize or streamline the configuration
-# Contracts:
-    # Find unused
-    # Find Contracts with wrong scope
-    # Visually figure out required Scope for context (e.g. doesn't leave AP)
-# Find unused Objects (e.g. Contracts, VRFs)
-# Reveal missing links between objects (e.g. L3Out to VRF or BD)
-
-
-## TODO:
-
-# Add example for tenant Common – regular Tanant references objects in Common
-# Add domain-centric Fabric mode, older code relate to Tenant mode
-# Readme
-# Comprehensive prints on every step e.g. Plot BD-X
-# If L3Out is not attached to a BD, create a dummy node to move L3Out to the right
-# If some object is missing but relation is present, flag it (like with missing contracts)
-# See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
-# If number of objects is more than 200 suggest splitting into Tenants
-# Taboo Contarcts
-# Add L2Out support
-
-
-
 ## NOT IMPLEMENTED:
 # Contact Subjects and Filters: may appear heavy visually if there are many sbj and flt per Contract
 
@@ -151,3 +125,5 @@ if args.verbose:
 # Mark unused Contracts as "Unused"
 # Group unused contracts and put in a subgraph
 # Certificate-based authentication
+# Add example for tenant Common – regular Tanant references objects in Common
+# Readme
