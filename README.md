@@ -101,6 +101,7 @@ python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-vasily/userc
 ## Example Diagrams
 
 ![example_diagram_1](example_diagrams/example_diagram_1.png)
+![example_diagram_2](example_diagrams/example_diagram_2.png)
 
 Legend:
 - Red = Object requires attention
@@ -116,7 +117,7 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 
 - [ ] Add Taboo Contracts
 - [ ] Add L2Out
-- [ ] Add Service Graph + PBR
+- [ ] Add Service Graph Template (+export) + PBR
 - [ ] Add domain-centric Fabric mode
 - [ ] Comprehensive prints on every step e.g. Plot BD-X
 - [ ] If some object is missing but relation is present, flag it (like with missing contracts)
