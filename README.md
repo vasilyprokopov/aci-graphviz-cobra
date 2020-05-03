@@ -122,7 +122,7 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 - [ ] Add domain-centric Fabric mode
 - [ ] Comprehensive prints on every step e.g. Plot BD-X
 - [ ] If some object is missing but relation is present, flag it (like with missing contracts)
-- [ ] See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+4
+- [ ] See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+5
 - [ ] If number of objects is more than 200 suggest splitting into Tenants
 
 ## Author
