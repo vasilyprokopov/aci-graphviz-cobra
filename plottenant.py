@@ -550,4 +550,34 @@ def plot_tenant(tenant, graph, moDir):
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
 
 
+    # Plot Service Graphs
+    # Query what SG attachemets exist in current Tenant
+    sgQuery = DnQuery(tenant.dn)
+    sgQuery.queryTarget = "subtree"
+    sgQuery.classFilter = "vzRsSubjGraphAtt" # If SG attachemet exists, some Contract Subject will have "vzRsSubjGraphAtt"
+    vzRsSubjGraphAtt = moDir.query(sgQuery)
+
+    for sg in vzRsSubjGraphAtt:
+
+        # Getting Contract name from the DN
+        dn = str(sg.dn)
+        i = dn.rfind("/brc-")+5 # In Dn we need to find the index where "/brc-" ends
+        ctrctName = dn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
+        ctrctName = ctrctName.split("/")[0] # Sptripping everything after the first "/"
+
+        # Getting Subject name from the DN
+        i = dn.rfind("/subj-")+6
+        subjName = dn[i : : ]
+        subjName = subjName.split("/")[0]
+
+        # Plot Service Graph
+        tnCluster.add_node(sg_node(tenant.name, sg.tnVnsAbsGraphName), label="Service Graph\n"+sg.tnVnsAbsGraphName, shape='box', style='filled', color='paleturquoise3')
+
+        # Plot Service Graph to Contract association
+        tnCluster.add_edge(sg_node(tenant.name, sg.tnVnsAbsGraphName), ctrct_node(tenant.name, ctrctName), label="Subject: "+subjName)
+
+        # What if SG in tenant Common?
+        # What if SG is exported?
+        # Maybe query SG directly to see if there's PBR etc
+
 # End of Plot Tenant function
