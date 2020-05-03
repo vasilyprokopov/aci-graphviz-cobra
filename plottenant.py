@@ -558,18 +558,23 @@ def plot_tenant(tenant, graph, moDir):
     vzRsSubjGraphAtt = moDir.query(sgQuery)
 
     for sg in vzRsSubjGraphAtt:
+
+        # Getting Contract name from the DN
         dn = str(sg.dn)
         i = dn.rfind("/brc-")+5 # In Dn we need to find the index where "/brc-" ends
-        dn = dn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
-        ctrctName = dn.split("/")[0] # Sptripping everything after the first "/"
+        ctrctName = dn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
+        ctrctName = ctrctName.split("/")[0] # Sptripping everything after the first "/"
 
-        print("Service graph "+sg.tnVnsAbsGraphName+" connects to contract "+ctrctName)
+        # Getting Subject name from the DN
+        i = dn.rfind("/subj-")+6
+        subjName = dn[i : : ]
+        subjName = subjName.split("/")[0]
 
         # Plot Service Graph
         tnCluster.add_node(sg_node(tenant.name, sg.tnVnsAbsGraphName), label="Service Graph\n"+sg.tnVnsAbsGraphName, shape='box', style='filled', color='paleturquoise3')
 
         # Plot Service Graph to Contract association
-        tnCluster.add_edge(sg_node(tenant.name, sg.tnVnsAbsGraphName), ctrct_node(tenant.name, ctrctName), label="Subject?")
+        tnCluster.add_edge(sg_node(tenant.name, sg.tnVnsAbsGraphName), ctrct_node(tenant.name, ctrctName), label="Subject: "+subjName)
 
         # What if SG in tenant Common?
         # What if SG is exported?
