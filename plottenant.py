@@ -29,6 +29,9 @@ def epg_node(tn, ap, epg):
 def ctrct_node(tn, ctrct):
     return tn_node(tn)+"/ctrct-"+ctrct
 
+def sg_node(tn, sg):
+    return tn_node(tn)+"/sg-"+sg
+
 def l3out_node(tn, l3out):
     return tn_node(tn)+"/l3out-"+l3out
 
@@ -61,7 +64,7 @@ def plot_tenant(tenant, graph, moDir):
 
         # Check if contract is unused i.e. doesn't have any child MOs indicating that the Contract is associated
         ctrctChildrenQuery = DnQuery(ctrct.dn)
-        ctrctChildrenQuery.queryTarget = "subtree" # Quering only children of Contract MO
+        ctrctChildrenQuery.queryTarget = "children" # Quering only children of Contract MO
         ctrctChildrenQuery.classFilter = "vzRtProv,vzRtCons,vzRtAnyToProv,vzRtAnyToCons,vzRtIf" # Quering only certain classes among children MOs
         ctrctChildren = moDir.query(ctrctChildrenQuery)
 
@@ -545,5 +548,6 @@ def plot_tenant(tenant, graph, moDir):
 
                     # Plot Missing Contract Interface to EPG association
                     tnCluster.add_edge(ctrctIf_node(cc.tnVzCPIfName), epg_node(tenant.name, ap.name, epg.name), label="inter-tenant c")
+
 
 # End of Plot Tenant function

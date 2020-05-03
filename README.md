@@ -118,6 +118,7 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 - [ ] Add Taboo Contracts
 - [ ] Add L2Out
 - [ ] Add Service Graph Template (+export) + PBR
+- [ ] Add subnet scope for BD
 - [ ] Add domain-centric Fabric mode
 - [ ] Comprehensive prints on every step e.g. Plot BD-X
 - [ ] If some object is missing but relation is present, flag it (like with missing contracts)
@@ -131,3 +132,7 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 ## License
 
 See the [LICENSE](LICENSE) file for details.
+
+## Inspired by
+
+[github.com/cgascoig/aci-diagram](https://github.com/cgascoig/aci-diagram)
