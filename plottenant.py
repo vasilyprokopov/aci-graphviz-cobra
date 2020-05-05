@@ -574,7 +574,7 @@ def plot_tenant(tenant, graph, moDir):
         tnCluster.add_node(sg_node(tenant.name, sg.tnVnsAbsGraphName), label="Service Graph\n"+sg.tnVnsAbsGraphName, shape='box', style='filled', color='paleturquoise3')
 
         # Plot Service Graph to Contract association
-        tnCluster.add_edge(sg_node(tenant.name, sg.tnVnsAbsGraphName), ctrct_node(tenant.name, ctrctName), label="Subject: "+subjName)
+        tnCluster.add_edge(ctrct_node(tenant.name, ctrctName), sg_node(tenant.name, sg.tnVnsAbsGraphName), label="Subject: "+subjName, dir="back")
 
         # What if SG in tenant Common?
         # What if SG is exported?
