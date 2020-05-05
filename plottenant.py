@@ -90,8 +90,7 @@ def plot_tenant(tenant, graph, moDir):
 
         for ctrctIf in vzRtIf: # Check if Contract Interface is indeed present
             if ctrctIf.tDn: #
-                i = ctrctIf.tDn.rfind("/cif-")+5 # In tDn we need to find the index where "cif-" ends
-                ctrctIfName = ctrctIf.tDn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
+                ctrctIfName = ctrctIf.tDn.split("/cif-")[1] # In tDn we need to take just the part after "cif-"
 
                 # Plot Contract Interface in the gloabal graph space
                 tnCluster.add_node(ctrctIf_node(ctrctIfName), label="Contract Interface\n"+ctrctIfName, shape='box', style='filled', color='lightgray')
@@ -561,13 +560,11 @@ def plot_tenant(tenant, graph, moDir):
 
         # Getting Contract name from the DN
         dn = str(sg.dn)
-        i = dn.rfind("/brc-")+5 # In Dn we need to find the index where "/brc-" ends
-        ctrctName = dn[i : : ] # Taking everythin starting from index i to the end of the string, and stripping the beggining before i
+        ctrctName = dn.split("/brc-")[1] # Sptripping everything before and including the first "/brc-"
         ctrctName = ctrctName.split("/")[0] # Sptripping everything after the first "/"
 
         # Getting Subject name from the DN
-        i = dn.rfind("/subj-")+6
-        subjName = dn[i : : ]
+        subjName = dn.split("/subj-")[1]
         subjName = subjName.split("/")[0]
 
         # Plot Service Graph
