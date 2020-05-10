@@ -37,7 +37,7 @@ Make sure you have these installed before attempting to run the script.
 ```
 graphviz-cobra.py
               [-h]
-              [-u [vasily]] [-p [Cisco123]]
+              [-u [admin]] [-p [pass31339]]
               [-a [https://169.254.1.1]]
               [-t [example_tn1 example_tn2 ...]
               [-o out.png]
@@ -51,10 +51,10 @@ graphviz-cobra.py
 python graphviz-cobra.py
 ```
 ```
-python graphviz-cobra.py -a https://169.254.1.1 -u vasily -p cisco123 -t graphviz1_tn graphviz3_tn graphviz2_tn
+python graphviz-cobra.py -a https://169.254.1.1 -u admin -p pass31339 -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 ```
-python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-vasily/usercert-vasily_crt -k vasily.key -t graphviz1_tn graphviz3_tn graphviz2_tn
+python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 
 ### All arguments are optional:
@@ -65,13 +65,13 @@ python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-vasily/userc
 ```
 - User name for Password-based authentication
 ```
--u vasily
---user vasily
+-u admin
+--user admin
 ```
 - Password for Password-based authentication
 ```                
--p Cisco123
---password Cisco123
+-p pass31339
+--password pass31339
 ```
 - Tenants to be included in the diagram (all Tenants by default)
 ```
