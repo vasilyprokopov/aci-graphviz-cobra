@@ -48,7 +48,11 @@ def plot_tenant(tenant, graph, moDir):
     print("Processing Tenant "+tenant.name)
 
     # Plot a Tenant
-    tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label="Tenant\n"+tenant.name, color="steelblue")
+    label = "Tenant\n"+tenant.name
+    if tenant.extMngdBy == "msc": # Check if Tenant is managed by MSO
+        label = label+"\n Managed by MSO"
+
+    tnCluster = graph.add_subgraph(name=tn_node(tenant.name), label=label, color="steelblue")
 
 
     # Process Contracts

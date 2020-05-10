@@ -14,7 +14,7 @@ import getpass
 from cobra.mit.access import MoDirectory
 from cobra.mit.session import LoginSession, CertSession
 
-from plottenant import plot_tenant # Import plot_tenant() function from a separate module plotTenant (file plotTenant.py)
+from plottenant import plot_tenant # Import plot_tenant() function from a separate module plottenant (file plottenant.py)
 
 
 # Disable InsecureRequestWarning
@@ -25,7 +25,6 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 # Parsing command line arguments
 parser = argparse.ArgumentParser(description='Script to plot diagrams from running ACI fabric')
 
-#parser.add_argument('-m', '--mode', help='Tenant/Fabric/EPG', nargs='?', metavar='user', required=True)
 parser.add_argument('-u', '--user', help='APIC Username', nargs='?', metavar='user')
 parser.add_argument('-p', '--password', help='APIC Password', nargs='?', metavar='Cisco123')
 parser.add_argument('-a', '--apic', help='APIC URL', nargs='?', metavar='https://169.254.1.1')
