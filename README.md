@@ -117,13 +117,15 @@ Tenant, VRF, BD, BD Subnet, Application Profile, Application EPG, L3Out, Externa
 
 - [ ] Add Taboo Contracts
 - [ ] Add L2Out
-- [ ] Add Service Graph Template (+export) + PBR
+- [X] Add Service Graph Template
+- [ ] Add Service Graph Template Export + PBR
 - [ ] Add subnet scope for BD
 - [ ] Add domain-centric Fabric mode
 - [ ] Comprehensive prints on every step e.g. Plot BD-X
 - [ ] If some object is missing but relation is present, flag it (like with missing contracts)
 - [X] See if there's better way to implement: i = ctrctIf.tDn.rfind("/cif-")+5
 - [ ] If number of objects is more than 200 suggest splitting into Tenants
+- [X] Add MSO notification if a Tenant is MSO-managed
 
 ## Author
 
