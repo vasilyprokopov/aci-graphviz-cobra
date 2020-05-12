@@ -30,6 +30,7 @@ Diagrams produced by this tool will help to:
 The tool depends on:
 - [Cobra](https://github.com/datacenter/cobra)
 - [pyGraphviz](https://github.com/pygraphviz/pygraphviz)
+- [Graphviz](https://www.graphviz.org/)
 
 Make sure you have these installed before attempting to run the script.
 
