@@ -58,6 +58,8 @@ python graphviz-cobra.py -a https://169.254.1.1 -u admin -p pass31339 -t graphvi
 python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 
+After the successful run find your diagram in ```/out``` subdirectory.
+
 ### All arguments are optional:
 - APIC URL           
 ```
@@ -101,8 +103,8 @@ python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/userce
 
 ## Example Diagrams
 
-![example_diagram_1](example_diagrams/example_diagram_1.png)
-![example_diagram_2](example_diagrams/example_diagram_2.png)
+![example_diagram_1](out/example_diagram_1.png)
+![example_diagram_2](out/example_diagram_2.png)
 
 Legend:
 - Red = Object requires attention

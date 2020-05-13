@@ -104,7 +104,7 @@ moDir.logout()
 
 # Print the graph
 print ("\nGenerating diagram")
-graph.draw(args.output, prog='dot')
+graph.draw("./out/"+args.output, prog='dot')
 
 if args.verbose:
     print (graph.string())
