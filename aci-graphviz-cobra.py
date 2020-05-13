@@ -7,6 +7,7 @@
 # sudo python graphviz-cobra.py -u admin -p cisco123 -a https://169.254.1.1 -t graphviz1_tn graphviz2_tn
 
 import pygraphviz
+import os
 import sys
 import argparse
 import getpass
@@ -104,7 +105,7 @@ moDir.logout()
 
 # Print the graph
 print ("\nGenerating diagram")
-graph.draw("./out/"+args.output, prog='dot')
+graph.draw(os.path.dirname(__file__)+"/out/"+args.output, prog='dot')
 
 if args.verbose:
     print (graph.string())
