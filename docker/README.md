@@ -1,10 +1,10 @@
-# Graphviz Cobra Docker Image
+# Graphviz Cobra Docker Container
 
-Running the Python script locally means installing dependencies like Graphviz and ACI Cobra SDK. To avoid the hassle use a Docker container that comes with the script and all dependencies pre-packaged. This container is available in DockerHub and has a size of around 500 MB.
+Running the tool locally means installing dependencies like Graphviz and ACI Cobra SDK. To avoid the hassle, use a Docker container that comes with the tool script and all the dependencies pre-packaged. Container is available in [DockerHub](https://hub.docker.com/repository/docker/vasilyprokopov/acigraphvizcobra) and has a size of around 500 MB uncompressed.
 
 ## Usage
 
-Use Docker to run a Graphviz Cobra container and mount your local directory where you want the output diagram to appear.
+Use Docker to run a container, and mount your local directory that you want the output diagram to appear in:
 
 ```
 docker run --rm -ti \
@@ -12,19 +12,24 @@ docker run --rm -ti \
 vasilyprokopov/acigraphvizcobra:5.0 bash
 ```
 
-Docker will take care of downloading a Graphviz Cobra container from [DockerHub](https://hub.docker.com/repository/docker/vasilyprokopov/acigraphvizcobra).
+Docker will take care of downloading a Graphviz Cobra container from DockerHub.
 
 ### Usage examples:
 
-In the running container execute Graphviz Cobra Python script similar to the examples below:
+In the running container execute the tool similar to the examples below:
 ```
-python aci-graphviz-cobra.py
-```
-```
-python aci-graphviz-cobra.py -a https://169.254.1.1 -u admin -p pass31339 -t graphviz1_tn graphviz3_tn graphviz2_tn
+python /home/aci-graphviz-cobra/aci-graphviz-cobra.py
 ```
 ```
-python aci-graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k /home/out/admin.key -t graphviz1_tn graphviz3_tn graphviz2_tn
+python /home/aci-graphviz-cobra/aci-graphviz-cobra.py \
+-a https://169.254.1.1 -u admin -p pass31339 \
+-t graphviz1_tn graphviz3_tn graphviz2_tn
+```
+```
+python /home/aci-graphviz-cobra/aci-graphviz-cobra.py \
+-a https://169.254.1.1 \
+-c uni/userext/user-admin/usercert-admin_crt -k /home/out/admin.key \
+-t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 After the successful run find your diagram in ```/home/out``` directory as well as in your local directory attached to a container
 To be able to use certificate-base authentication make sure to put your private key in your local directory attached to a container.

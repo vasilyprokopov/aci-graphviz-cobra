@@ -32,11 +32,13 @@ The tool depends on:
 - [pyGraphviz](https://github.com/pygraphviz/pygraphviz)
 - [Graphviz](https://www.graphviz.org/)
 
-Make sure you have these installed before attempting to run the script.
-
-If you don't want to bother with dependencies, run the tool in a Docker Container that we [maintain](docker/README.MD).
+Make sure you have these installed before attempting to run the script on your system.
 
 ## Usage
+
+You can run the tool native on your system.
+Or, to avoid dealing with dependencies, you can run the tool in a Docker Container that we [maintain](docker/README.md).
+
 ```
 aci-graphviz-cobra.py
               [-h]
@@ -54,10 +56,14 @@ aci-graphviz-cobra.py
 python aci-graphviz-cobra.py
 ```
 ```
-python aci-graphviz-cobra.py -a https://169.254.1.1 -u admin -p pass31339 -t graphviz1_tn graphviz3_tn graphviz2_tn
+python aci-graphviz-cobra.py \
+-a https://169.254.1.1 -u admin -p pass31339 \
+-t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 ```
-python aci-graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key -t graphviz1_tn graphviz3_tn graphviz2_tn
+python aci-graphviz-cobra.py \
+-a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key \
+-t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 
 After the successful run find your diagram in ```/out``` subdirectory.
