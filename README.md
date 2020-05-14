@@ -36,7 +36,7 @@ Make sure you have these installed before attempting to run the script.
 
 ## Usage
 ```
-graphviz-cobra.py
+aci-graphviz-cobra.py
               [-h]
               [-u [admin]] [-p [pass31339]]
               [-a [https://169.254.1.1]]
@@ -49,13 +49,13 @@ graphviz-cobra.py
 
 ### Usage examples:
 ```
-python graphviz-cobra.py
+python aci-graphviz-cobra.py
 ```
 ```
-python graphviz-cobra.py -a https://169.254.1.1 -u admin -p pass31339 -t graphviz1_tn graphviz3_tn graphviz2_tn
+python aci-graphviz-cobra.py -a https://169.254.1.1 -u admin -p pass31339 -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 ```
-python graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key -t graphviz1_tn graphviz3_tn graphviz2_tn
+python aci-graphviz-cobra.py -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
 
 After the successful run find your diagram in ```/out``` subdirectory.
