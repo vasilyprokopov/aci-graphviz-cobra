@@ -7,7 +7,7 @@ Generate diagrams from running Cisco ACI Fabrics.
 This tool is a Python3 script that:
 - Initiates a connection to a running Cisco ACI Fabric
 - Queries each Tenant
-- Plots Managed Objects (Objects for short) and their associations to each other
+- Plots ACI Managed Objects (Objects for short) and their associations to each other
 
 The tool supports Password-based and Certificate-based authentication to the Cisco ACI Fabric. Certificate-based authentication takes precedence if both are attempted simultaneously.
 
@@ -18,9 +18,9 @@ Diagrams produced by this tool will help to:
   * To simplify troubleshooting
   * To sparkle ideas how to optimise the configuration
 - Visually document current configurational state of the Fabric
-- Sort out Contract configuration:
+- Sort out Contracts:
   * Reveal unused Contracts
-  * Reveal Contracts with wrongly configured Scope
+  * Reveal wrongly configured Contract Scopes
   * Visually figure out required Scope for the Contract (e.g. consumed only within the AP)
 - Spot unused Objects (e.g. VRFs, BDs)
 - Reveal missing links between objects (e.g. L3Out to VRF or BD)
@@ -33,6 +33,8 @@ The tool depends on:
 - [Graphviz](https://www.graphviz.org/)
 
 Make sure you have these installed before attempting to run the script.
+
+If you don't want to bother with dependencies, run the tool in a Docker Container that we [maintain](docker/README.MD).
 
 ## Usage
 ```
