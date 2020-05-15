@@ -14,6 +14,7 @@ The tool supports Password-based and Certificate-based authentication to the Cis
 ## Use Cases
 
 Diagrams produced by this tool will help to:
+
 - Reveal Object relations within the Tenant and between the Tenants
   * To simplify troubleshooting
   * To sparkle ideas how to optimise the configuration
@@ -28,6 +29,7 @@ Diagrams produced by this tool will help to:
 ## Prerequisites
 
 The tool depends on:
+
 - [Cobra](https://github.com/datacenter/cobra)
 - [pyGraphviz](https://github.com/pygraphviz/pygraphviz)
 - [Graphviz](https://www.graphviz.org/)
@@ -69,42 +71,50 @@ python aci-graphviz-cobra.py \
 After the successful run find your diagram in ```/out``` subdirectory.
 
 ### All arguments are optional:
-- APIC URL           
+- APIC URL
+
 ```
 -a https://169.254.1.1
 --apic https://169.254.1.1
 ```
 - User name for Password-based authentication
+
 ```
 -u admin
 --user admin
 ```
 - Password for Password-based authentication
+
 ```                
 -p pass31339
 --password pass31339
 ```
 - Tenants to be included in the diagram (all Tenants by default)
+
 ```
 -t example_tn1 example_tn2 ...
 --tenant example_tn1 example_tn2 ...
 ```
 - Output file name (out.png by default)
+
 ```
 -o out.png
 --output out.png
 ```
 - Private key file for Certificate-based authentication
+
 ```
 -k user.key
 --keyfile user.key
 ```
 - Certificate DN for Certificate-based authentication
+
 ```
 -c uni/userext/user-cisco/usercert-cisco_crt
 --certdn uni/userext/user-cisco/usercert-cisco_crt
 ```
 - Verbose
+
 ```
 -vv, --verbose
 ```
@@ -115,6 +125,7 @@ After the successful run find your diagram in ```/out``` subdirectory.
 ![example_diagram_2](out/example_diagram_2.png)
 
 Legend:
+
 - Red = Object requires attention
 - Green = Object belongs to Tenant Common
 - c = Consumed Contract
