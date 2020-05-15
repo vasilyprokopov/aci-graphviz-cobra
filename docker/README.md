@@ -17,6 +17,7 @@ Docker will take care of downloading a container from DockerHub.
 ### Usage examples:
 
 In the running container execute the tool similar to the examples below:
+
 ```
 python /home/aci-graphviz-cobra/aci-graphviz-cobra.py
 ```
@@ -31,6 +32,7 @@ python /home/aci-graphviz-cobra/aci-graphviz-cobra.py \
 -c uni/userext/user-admin/usercert-admin_crt -k /home/out/admin.key \
 -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
+
 After the successful run find your diagram in ```/home/out``` directory as well as in your local directory attached to a container
 To be able to use certificate-base authentication make sure to put your private key in your local directory attached to a container.
 
@@ -48,10 +50,12 @@ ln -s /home/out /home/aci-graphviz-cobra
 To make container smaller in size we then remove ```libgraphviz-dev``` and ```git```.
 
 Cobra SDK consumes around 800 MB of space, but only small subset of objects are being used by the tool. Hence, we are removing some of the unused objects, like the one below:
+
 ```
 rm -rf /usr/local/lib/python3.7/site-packages/cobra/modelimpl/cloudsec
 ```
 We also clear Python's cache, as it is worth another 300 MB, but barely adding any performance benefit.
+
 ```
 find /usr/local/lib/python3.7/site-packages/cobra/modelimpl/ | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
 ```
@@ -61,6 +65,7 @@ This makes the size of the build less then 500 MB, while when built without prop
 All Linux commands are being put under the single ```RUN``` on purpose - to remove unnecessary container layers. Not a perfect solution, but [multi-stage](https://pythonspeed.com/articles/smaller-python-docker-images/) build, which might have been a better alternative, has limited applicability to our use case.
 
 From within the build directory create a container:
+
 ```
 docker build -t acigraphvizcobra:5.0 -f aci-graphviz-cobra.app .
 ```
