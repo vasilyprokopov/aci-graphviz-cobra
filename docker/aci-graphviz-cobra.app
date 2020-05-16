@@ -1,23 +1,37 @@
 # aci-graphviz-cobra.app
 
+# Copyright: (c) 2020, Vasily Prokopov (@vasilyprokopov)
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 FROM python:3.7.3-slim
 
 COPY requirements.txt /tmp/
 COPY acicobra-4.2_3l-py2.py3-none-any.whl /tmp/cobra/
 COPY acimodel-4.2_3l-py2.py3-none-any.whl /tmp/cobra/
+
 RUN apt-get update && \
     apt-get install graphviz -y && \
+#
+#Only on a slim image
+#
     apt-get install libgraphviz-dev -y && \
     apt-get install git -y && \
 #
     pip install --upgrade pip && \
     pip install -r /tmp/requirements.txt && \
 #
+# Cloning aci-graphviz-cobra and creating a link to let the diagram appear in the mounted volume
+# Need the link because:
+# Not possible to mount a volume once container has been started
+# Not possible to git clone into a non-empty directory
+#
     mkdir /home/out && \
     git clone https://github.com/vasilyprokopov/aci-graphviz-cobra /home/aci-graphviz-cobra && \
     rm -r /home/aci-graphviz-cobra/out/ && \
     ln -s /home/out /home/aci-graphviz-cobra && \
-#
+  #
+  # Cleaning up
+  #
     apt-get remove libgraphviz-dev -y && \
     apt-get remove git -y && \
     apt-get autoremove -y && \
