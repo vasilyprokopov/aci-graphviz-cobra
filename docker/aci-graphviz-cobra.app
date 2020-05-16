@@ -12,7 +12,7 @@ COPY acimodel-4.2_3l-py2.py3-none-any.whl /tmp/cobra/
 RUN apt-get update && \
     apt-get install graphviz -y && \
 #
-#Only on a slim image
+# Only on a slim image
 #
     apt-get install libgraphviz-dev -y && \
     apt-get install git -y && \
@@ -29,9 +29,9 @@ RUN apt-get update && \
     git clone https://github.com/vasilyprokopov/aci-graphviz-cobra /home/aci-graphviz-cobra && \
     rm -r /home/aci-graphviz-cobra/out/ && \
     ln -s /home/out /home/aci-graphviz-cobra && \
-  #
-  # Cleaning up
-  #
+#
+# Cleaning up
+#
     apt-get remove libgraphviz-dev -y && \
     apt-get remove git -y && \
     apt-get autoremove -y && \
