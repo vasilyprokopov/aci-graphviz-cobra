@@ -12,6 +12,8 @@ This tool is a Python3 script that:
 
 The tool supports Password-based and Certificate-based authentication to the Cisco ACI Fabric. Certificate-based authentication takes precedence if both are attempted simultaneously.
 
+The tool was tested extensively with ACI 4.2(x). It may work with other ACI software versions as well.
+
 ## Use Cases
 
 Diagrams produced by this tool will help to:
