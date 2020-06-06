@@ -86,6 +86,13 @@ After the successful run find your diagram in ```/out``` subdirectory.
 -u admin
 --user admin
 ```
+If you need to specify login Domain, then prepend the user name with **apic:\<domain_name\>\\\\\\**
+
+```
+-u apic:ISEdomain\\admin
+--user apic:ISEdomain\\admin
+```
+
 - Password for Password-based authentication
 
 ```                
