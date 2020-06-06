@@ -57,14 +57,20 @@ aci-graphviz-cobra.py
 ```
 
 ### Usage examples:
+Example A
+
 ```
 python aci-graphviz-cobra.py
 ```
+Example B – Password-based authentication
+
 ```
 python aci-graphviz-cobra.py \
 -a https://169.254.1.1 -u admin -p pass31339 \
 -t graphviz1_tn graphviz3_tn graphviz2_tn
 ```
+Example C – Certificate-based authentication
+
 ```
 python aci-graphviz-cobra.py \
 -a https://169.254.1.1 -c uni/userext/user-admin/usercert-admin_crt -k admin.key \
@@ -86,7 +92,7 @@ After the successful run find your diagram in ```/out``` subdirectory.
 -u admin
 --user admin
 ```
-If you need to specify login Domain, then prepend the user name with **apic:\<domain_name\>\\\\\\**
+If you need to specify login Domain, then prepend the user name with **apic:\<domain_name\>\\\\**
 
 ```
 -u apic:ISEdomain\\admin
